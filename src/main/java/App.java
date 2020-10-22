@@ -4,6 +4,8 @@ import org.gitlab4j.api.models.Project;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class App {
@@ -23,14 +25,28 @@ public class App {
         String columnNames[] = prop.getProperty("columns").split(",");
 
         GitlabService gitlabService = new GitlabService(hostUrl, personalAccessToken);
-
-        HashMap<String, List<Issue>> columns = gitlabService.getColumnsMap(projectName, columnNames);
+        HashMap<String, List<Issue>> columns = null;
+        columns = gitlabService.getColumnsMap(projectName, columnNames);
 
         for (String s : columnNames) {
             System.out.println("Issues in column " + s + ": " + columns.get(s).size());
         }
 
+        ArrayList cfdRow = new ArrayList();
+        Date date = Calendar.getInstance().getTime();
+
+        // Display a date in day, month, year format
+        DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+        String today = formatter.format(date);
+        cfdRow.add(today);
+        for (int i = 0; i < columnNames.length; i++) {
+            String columnName = columnNames[i];
+            int columnSize = columns.get(columnName).size();
+            cfdRow.add(columnSize);
+        }
+
         SheetsService sheetsService = new SheetsService(columns, columnNames);
+        sheetsService.persistNewRow(cfdRow);
 
     }
 

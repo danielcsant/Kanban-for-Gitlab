@@ -10,6 +10,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
 import org.gitlab4j.api.models.Issue;
@@ -19,10 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 
 public class SheetsService {
@@ -69,43 +67,24 @@ public class SheetsService {
      * Prints the names and majors of students in a sample spreadsheet:
      * https://docs.google.com/spreadsheets/d/1XhxJP8SvU_FV3xBmKXG7UzWUEERQ806bgghYktGu96M/edit#gid=0
      */
-    public static void main(String... args) throws IOException, GeneralSecurityException {
-        // Build a new authorized API client service.
+    public void persistNewRow(ArrayList cfdRow) throws GeneralSecurityException, IOException {
+
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         final String spreadsheetId = "1XhxJP8SvU_FV3xBmKXG7UzWUEERQ806bgghYktGu96M";
-        final String range = "Hoja 1!A2:E";
+        final String range = "Hoja 2!A2:E";
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
-        ValueRange response = service.spreadsheets().values()
-                .get(spreadsheetId, range)
-                .execute();
-        List<List<Object>> values = response.getValues();
-        if (values == null || values.isEmpty()) {
-            System.out.println("No data found.");
-        } else {
-            System.out.println("Name, Major");
-            for (List row : values) {
-                // Print columns A and E, which correspond to indices 0 and 4.
-                System.out.printf("%s, %s\n", row.get(0), row.get(4));
-            }
-        }
 
-        int rowcount = service.spreadsheets().values().get(spreadsheetId, range).execute().getValues().size();
-        System.out.println(rowcount);
+        List<List<Object>> newRow = new ArrayList<>();
+        newRow.add(cfdRow);
 
-        List<List<Object>> newRow = Arrays.asList(
-                Arrays.asList(
-                        "// Cell values ..."
-                )
-        );
         ValueRange body = new ValueRange()
                 .setValues(newRow);
-        UpdateValuesResponse result =
-                service.spreadsheets().values().update(spreadsheetId, range, body)
+        AppendValuesResponse result =
+                service.spreadsheets().values().append(spreadsheetId, range, body)
                         .setValueInputOption("USER_ENTERED")
                         .execute();
-        System.out.printf("%d cells updated.", result.getUpdatedCells());
-
+        System.out.printf("%d cells updated.", result.getUpdates().getUpdatedCells());
     }
 }
