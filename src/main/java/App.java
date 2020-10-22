@@ -23,6 +23,7 @@ public class App {
         String hostUrl = prop.getProperty("hostUrl");
         String projectName = prop.getProperty("projectName");
         String columnNames[] = prop.getProperty("columns").split(",");
+        String sheetId = prop.getProperty("sheetId");
 
         GitlabService gitlabService = new GitlabService(hostUrl, personalAccessToken);
         HashMap<String, List<Issue>> columns = null;
@@ -41,11 +42,12 @@ public class App {
         cfdRow.add(today);
         for (int i = 0; i < columnNames.length; i++) {
             String columnName = columnNames[i];
-            int columnSize = columns.get(columnName).size();
-            cfdRow.add(columnSize);
+                int columnSize = columns.get(columnName).size();
+                cfdRow.add(columnSize);
         }
+        cfdRow.add(columns.get("Reopened").size());
 
-        SheetsService sheetsService = new SheetsService(columns, columnNames);
+        SheetsService sheetsService = new SheetsService(sheetId, columns, columnNames);
         sheetsService.persistNewRow(cfdRow);
 
     }

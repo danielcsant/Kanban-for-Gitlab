@@ -24,8 +24,11 @@ import java.util.*;
 
 
 public class SheetsService {
-    public SheetsService(HashMap<String, List<Issue>> columns, String[] columnNames) {
 
+    private String sheetId;
+
+    public SheetsService(String sheetId, HashMap<String, List<Issue>> columns, String[] columnNames) {
+        this.sheetId = sheetId;
     }
 
     private static final String APPLICATION_NAME = "Kanban for Gitlab";
@@ -65,13 +68,11 @@ public class SheetsService {
 
     /**
      * Prints the names and majors of students in a sample spreadsheet:
-     * https://docs.google.com/spreadsheets/d/1XhxJP8SvU_FV3xBmKXG7UzWUEERQ806bgghYktGu96M/edit#gid=0
      */
     public void persistNewRow(ArrayList cfdRow) throws GeneralSecurityException, IOException {
 
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        final String spreadsheetId = "1XhxJP8SvU_FV3xBmKXG7UzWUEERQ806bgghYktGu96M";
-        final String range = "Hoja 2!A2:E";
+        final String range = "CFD!A2:E";
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
@@ -82,7 +83,7 @@ public class SheetsService {
         ValueRange body = new ValueRange()
                 .setValues(newRow);
         AppendValuesResponse result =
-                service.spreadsheets().values().append(spreadsheetId, range, body)
+                service.spreadsheets().values().append(sheetId, range, body)
                         .setValueInputOption("USER_ENTERED")
                         .execute();
         System.out.printf("%d cells updated.", result.getUpdates().getUpdatedCells());

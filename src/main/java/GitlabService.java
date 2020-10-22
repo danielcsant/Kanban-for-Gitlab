@@ -47,7 +47,25 @@ public class GitlabService {
         for (Issue issue : issues) {
             switch (issue.getState()) {
                 case OPENED:
-                    openedIssues.add(issue);
+                    try {
+                        boolean hasColumnLabel = false;
+                        if (issue.getLabels() != null && issue.getLabels().size() > 0){
+                            for (String label : issue.getLabels()) {
+                                if (columns.containsKey(label)){
+                                    hasColumnLabel = true;
+                                    break;
+                                }
+                            }
+                        }
+                        if (!hasColumnLabel){
+                            openedIssues.add(issue);
+                        }
+                    } catch (Exception e){
+                        if (issue.getLabels() != null && issue.getLabels().size() > 0){
+                            System.err.println(issue.getLabels());
+                        }
+                        throw e;
+                    }
                     break;
                 case CLOSED:
                     closedIssues.add(issue);
@@ -79,6 +97,10 @@ public class GitlabService {
             }
 
         }
+
+        columns.put("Open", openedIssues);
+        columns.put("Closed", closedIssues);
+        columns.put("Reopened", reopenedIssues);
 
         return columns;
     }
