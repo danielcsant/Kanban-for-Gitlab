@@ -24,8 +24,9 @@ public class App {
         String projectName = prop.getProperty("projectName");
         String columnNames[] = prop.getProperty("columns").split(",");
         String sheetId = prop.getProperty("sheetId");
+        int closedAtStart = Integer.parseInt(prop.getProperty("closedAtStart", "0"));
 
-        GitlabService gitlabService = new GitlabService(hostUrl, personalAccessToken);
+        GitlabService gitlabService = new GitlabService(hostUrl, personalAccessToken, closedAtStart);
         HashMap<String, List<Issue>> columns = null;
         columns = gitlabService.getColumnsMap(projectName, columnNames);
 
@@ -42,8 +43,12 @@ public class App {
         cfdRow.add(today);
         for (int i = 0; i < columnNames.length; i++) {
             String columnName = columnNames[i];
-                int columnSize = columns.get(columnName).size();
+            int columnSize = columns.get(columnName).size();
+            if (columnName.equalsIgnoreCase("closed")){
+                cfdRow.add(columnSize - closedAtStart);
+            } else {
                 cfdRow.add(columnSize);
+            }
         }
         cfdRow.add(columns.get("Reopened").size());
 

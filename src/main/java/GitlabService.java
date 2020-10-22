@@ -11,13 +11,16 @@ public class GitlabService {
 
     GitLabApi gitLabApi = null;
     List<Project> projects = null;
+    int closedAtStart = 0;
 
-    public GitlabService(String hostUrl, String personalAccessToken) throws GitLabApiException {
+    public GitlabService(String hostUrl, String personalAccessToken, int closedAtStart) throws GitLabApiException {
         // Create a GitLabApi instance to communicate with your GitLab server
         gitLabApi = new GitLabApi(hostUrl, personalAccessToken);
 
         // Get the list of projects your account has access to
         projects = gitLabApi.getProjectApi().getProjects();
+
+        this.closedAtStart = closedAtStart;
     }
 
     public HashMap<String, List<Issue>> getColumnsMap(String projectName, String[] columnNames) throws Exception {

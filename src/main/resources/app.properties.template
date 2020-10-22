@@ -2,4 +2,5 @@ personalAccessToken=
 hostUrl=https://git.DOMAIN.com/
 projectName=
 columns=To Do,Doing,Test
+closedAtStart=
 sheetId=1XhxJ8SvU_FBmKXG7UzWRQ806hYku96Mdsfeaffdff
