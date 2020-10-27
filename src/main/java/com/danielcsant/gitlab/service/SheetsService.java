@@ -1,3 +1,5 @@
+package com.danielcsant.gitlab.service;
+
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -13,7 +15,6 @@ import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.AppendValuesResponse;
 import com.google.api.services.sheets.v4.model.UpdateValuesResponse;
 import com.google.api.services.sheets.v4.model.ValueRange;
-import org.gitlab4j.api.models.Issue;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class SheetsService {
 
     private String sheetId;
 
-    public SheetsService(String sheetId, HashMap<String, List<Issue>> columns, String[] columnNames) {
+    public SheetsService(String sheetId) {
         this.sheetId = sheetId;
     }
 
@@ -66,26 +67,37 @@ public class SheetsService {
         return new AuthorizationCodeInstalledApp(flow, receiver).authorize("user");
     }
 
-    /**
-     * Prints the names and majors of students in a sample spreadsheet:
-     */
-    public void persistNewRow(ArrayList cfdRow) throws GeneralSecurityException, IOException {
+
+    public void persistNewRow(String sheet, List<List<Object>> rows) throws GeneralSecurityException, IOException {
 
         final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
-        final String range = "CFD!A2:E";
+        final String range = sheet + "!A2:E";
         Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
                 .setApplicationName(APPLICATION_NAME)
                 .build();
 
-        List<List<Object>> newRow = new ArrayList<>();
-        newRow.add(cfdRow);
-
         ValueRange body = new ValueRange()
-                .setValues(newRow);
+                .setValues(rows);
         AppendValuesResponse result =
                 service.spreadsheets().values().append(sheetId, range, body)
                         .setValueInputOption("USER_ENTERED")
                         .execute();
-        System.out.printf("%d cells updated.", result.getUpdates().getUpdatedCells());
+        System.out.printf("%d cells appended.", result.getUpdates().getUpdatedCells());
+    }
+
+    public void updateRows(String sheet, List<List<Object>> rows) throws GeneralSecurityException, IOException {
+        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+        final String range = sheet + "!A2:F";
+        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+
+        ValueRange body = new ValueRange()
+                .setValues(rows);
+        UpdateValuesResponse result =
+                service.spreadsheets().values().update(sheetId, range, body)
+                        .setValueInputOption("USER_ENTERED")
+                        .execute();
+        System.out.printf("%d cells updated.", result.getUpdatedCells());
     }
 }
