@@ -2,7 +2,8 @@ package com.danielcsant.gitlab;
 
 import com.danielcsant.gitlab.model.ColumnStatus;
 import com.danielcsant.gitlab.model.IssueColumnStatuses;
-import com.danielcsant.gitlab.service.GitlabService;
+import com.danielcsant.gitlab.service.BugsMetricsService;
+import com.danielcsant.gitlab.service.CFDMetricsService;
 import com.danielcsant.gitlab.service.SheetsService;
 import org.gitlab4j.api.Constants;
 import org.gitlab4j.api.models.Issue;
@@ -21,7 +22,9 @@ public class App {
     private final static Logger LOGGER = Logger.getLogger("com.danielcsant.gitlab.App");
 
     private static SheetsService sheetsService;
-    private static GitlabService gitlabService;
+    private static CFDMetricsService gitlabService;
+    private static BugsMetricsService bugsMetricsService;
+    private static String projectName;
 
     public static void main(String[] args) throws Exception {
         Properties prop = new Properties();
@@ -34,19 +37,46 @@ public class App {
 
         String personalAccessToken = prop.getProperty("personalAccessToken");
         String hostUrl = prop.getProperty("hostUrl");
-        String projectName = prop.getProperty("projectName");
+        projectName = prop.getProperty("projectName");
         String columnNames[] = prop.getProperty("columns").split(",");
         String sheetId = prop.getProperty("sheetId");
         int closedAtStart = Integer.parseInt(prop.getProperty("closedAtStart", "0"));
 
         sheetsService = new SheetsService(sheetId);
-        gitlabService = new GitlabService(hostUrl, personalAccessToken, closedAtStart);
+        gitlabService = new CFDMetricsService(hostUrl, personalAccessToken, closedAtStart);
+        bugsMetricsService = new BugsMetricsService(hostUrl, personalAccessToken, closedAtStart);
 
         HashMap<String, List<Issue>> columns = gitlabService.getColumnsMap(projectName, columnNames);
 
         generateCFDmetrics(columnNames, closedAtStart, columns);
+        generateBugsMetrics(columns);
 //        generateLeadTimeMetrics(projectName, columnNames, columns);
 //        generateCustomerLeadTimeMetrics(projectName, columnNames, columns);
+    }
+
+    private static void generateBugsMetrics(HashMap<String, List<Issue>> columns) throws Exception {
+
+        List<Issue> bugsCreatedYesterday = bugsMetricsService.getBugsCreatedYesterday(projectName, columns);
+
+        StringBuffer urls = new StringBuffer();
+        for (Issue issue : bugsCreatedYesterday) {
+            if (urls.length() != 0){
+                urls.append("\n");
+            }
+            urls.append(issue.getWebUrl());
+        }
+
+        Date date = Calendar.getInstance().getTime();
+        String today = getFormattedDate(date);
+
+        ArrayList bugRow = new ArrayList();
+        bugRow.add(today);
+        bugRow.add(bugsCreatedYesterday.size());
+        bugRow.add(urls.toString());
+        List<List<Object>> newRows = new ArrayList<>();
+        newRows.add(bugRow);
+
+        sheetsService.persistNewRow("Bugs", newRows);
     }
 
     private static void generateCustomerLeadTimeMetrics(String projectName, String[] columnNames, HashMap<String, List<Issue>> columns) throws Exception {

@@ -16,7 +16,7 @@ import java.util.Properties;
 
 public class GitlabServiceManualTest {
 
-    private static GitlabService gitlabService;
+    private static CFDMetricsService gitlabService;
 
     static String projectName;
     static String columnNames[];
@@ -34,7 +34,7 @@ public class GitlabServiceManualTest {
         columnNames = prop.getProperty("columns").split(",");
         int closedAtStart = Integer.parseInt(prop.getProperty("closedAtStart", "0"));
 
-        gitlabService = new GitlabService(hostUrl, personalAccessToken, closedAtStart);
+        gitlabService = new CFDMetricsService(hostUrl, personalAccessToken, closedAtStart);
     }
 
     @Test
