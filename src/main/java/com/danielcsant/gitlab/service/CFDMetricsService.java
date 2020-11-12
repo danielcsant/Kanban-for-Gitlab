@@ -5,6 +5,7 @@ import com.danielcsant.gitlab.model.IssueColumnStatuses;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.Issue;
+import org.gitlab4j.api.models.IssuesStatistics;
 import org.gitlab4j.api.models.LabelEvent;
 import org.gitlab4j.api.models.Project;
 
