@@ -4,6 +4,7 @@ import com.danielcsant.gitlab.model.ColumnStatus;
 import com.danielcsant.gitlab.model.IssueColumnStatuses;
 import com.danielcsant.gitlab.service.BugsMetricsService;
 import com.danielcsant.gitlab.service.CFDMetricsService;
+import com.danielcsant.gitlab.service.NewTasksMetricsService;
 import com.danielcsant.gitlab.service.SheetsService;
 import org.gitlab4j.api.Constants;
 import org.gitlab4j.api.models.Issue;
@@ -24,6 +25,7 @@ public class App {
     private static SheetsService sheetsService;
     private static CFDMetricsService gitlabService;
     private static BugsMetricsService bugsMetricsService;
+    private static NewTasksMetricsService newTasksMetricsService;
     private static String projectName;
 
     public static void main(String[] args) throws Exception {
@@ -45,13 +47,39 @@ public class App {
         sheetsService = new SheetsService(sheetId);
         gitlabService = new CFDMetricsService(hostUrl, personalAccessToken, closedAtStart);
         bugsMetricsService = new BugsMetricsService(hostUrl, personalAccessToken, closedAtStart);
+        newTasksMetricsService = new NewTasksMetricsService(hostUrl, personalAccessToken, closedAtStart);
 
         HashMap<String, List<Issue>> columns = gitlabService.getColumnsMap(projectName, columnNames);
 
         generateCFDmetrics(columnNames, closedAtStart, columns);
         generateBugsMetrics(columns);
+        generateNewTaskMetrics(columns);
 //        generateLeadTimeMetrics(projectName, columnNames, columns);
 //        generateCustomerLeadTimeMetrics(projectName, columnNames, columns);
+    }
+
+    private static void generateNewTaskMetrics(HashMap<String, List<Issue>> columns) throws Exception {
+        List<Issue> tasksCreatedYesterday = newTasksMetricsService.getTasksCreatedYesterday(projectName, columns);
+
+        StringBuffer urls = new StringBuffer();
+        for (Issue issue : tasksCreatedYesterday) {
+            if (urls.length() != 0){
+                urls.append("\n");
+            }
+            urls.append(issue.getWebUrl());
+        }
+
+        Date date = Calendar.getInstance().getTime();
+        String today = getFormattedDate(date);
+
+        ArrayList newTaskRow = new ArrayList();
+        newTaskRow.add(today);
+        newTaskRow.add(tasksCreatedYesterday.size());
+        newTaskRow.add(urls.toString());
+        List<List<Object>> newRows = new ArrayList<>();
+        newRows.add(newTaskRow);
+
+        sheetsService.persistNewRow("New tasks", newRows);
     }
 
     private static void generateBugsMetrics(HashMap<String, List<Issue>> columns) throws Exception {

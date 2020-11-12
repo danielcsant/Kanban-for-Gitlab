@@ -2,11 +2,14 @@ package com.danielcsant.gitlab.service;
 
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
+import org.gitlab4j.api.models.Issue;
 import org.gitlab4j.api.models.Project;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public abstract class GitlabService {
@@ -48,5 +51,18 @@ public abstract class GitlabService {
 
     protected Date getDate(String date) throws ParseException {
         return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").parse(date);
+    }
+
+    protected Date getPreviousWorkingDay() {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(new Date());
+
+        int dayOfWeek;
+        do {
+            cal.add(Calendar.DAY_OF_MONTH, -1);
+            dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+        } while (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY);
+
+        return cal.getTime();
     }
 }

@@ -11,7 +11,7 @@ import java.util.*;
 
 public class BugsMetricsService extends GitlabService{
 
-    final String BUG_LABEL = "Bug";
+    final String BUG_LABEL = "1- Critico";
 
     public BugsMetricsService(String hostUrl, String personalAccessToken, int closedAtStart) throws GitLabApiException {
         super(hostUrl, personalAccessToken, closedAtStart);
@@ -63,16 +63,5 @@ public class BugsMetricsService extends GitlabService{
         return issue.getLabels() != null && issue.getLabels().contains(BUG_LABEL);
     }
 
-    private Date getPreviousWorkingDay() {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date());
 
-        int dayOfWeek;
-        do {
-            cal.add(Calendar.DAY_OF_MONTH, -1);
-            dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-        } while (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY);
-
-        return cal.getTime();
-    }
 }
