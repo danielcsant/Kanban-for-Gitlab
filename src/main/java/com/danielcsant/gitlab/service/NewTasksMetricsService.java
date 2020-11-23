@@ -3,10 +3,7 @@ package com.danielcsant.gitlab.service;
 import com.danielcsant.gitlab.model.IssuesInDate;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.Issue;
-import org.gitlab4j.api.models.Project;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class NewTasksMetricsService extends GitlabService{
@@ -16,8 +13,7 @@ public class NewTasksMetricsService extends GitlabService{
     }
 
 
-    public List<Issue> getTasksCreatedYesterday(String projectName, HashMap<String, List<Issue>> columns) throws Exception {
-        Project project = getProject(projectName);
+    public List<Issue> getTasksCreatedYesterday(HashMap<String, List<Issue>> columns) throws Exception {
         List<Issue> result = new ArrayList<>();
         for (List<Issue> valuesColumn : columns.values()) {
             for (Issue issue : valuesColumn) {

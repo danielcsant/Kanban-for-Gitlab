@@ -2,10 +2,8 @@ package com.danielcsant.gitlab;
 
 import com.danielcsant.gitlab.model.ColumnStatus;
 import com.danielcsant.gitlab.model.IssueColumnStatuses;
-import com.danielcsant.gitlab.service.BugsMetricsService;
-import com.danielcsant.gitlab.service.CFDMetricsService;
-import com.danielcsant.gitlab.service.NewTasksMetricsService;
-import com.danielcsant.gitlab.service.SheetsService;
+import com.danielcsant.gitlab.model.TestCoverage;
+import com.danielcsant.gitlab.service.*;
 import org.gitlab4j.api.Constants;
 import org.gitlab4j.api.models.Issue;
 
@@ -23,9 +21,12 @@ public class App {
     private final static Logger LOGGER = Logger.getLogger("com.danielcsant.gitlab.App");
 
     private static SheetsService sheetsService;
+
     private static CFDMetricsService gitlabService;
     private static BugsMetricsService bugsMetricsService;
     private static NewTasksMetricsService newTasksMetricsService;
+    private static TestCoverageMetricsService testCoverageMetricsService;
+
     private static String projectName;
 
     public static void main(String[] args) throws Exception {
@@ -48,18 +49,36 @@ public class App {
         gitlabService = new CFDMetricsService(hostUrl, personalAccessToken, closedAtStart);
         bugsMetricsService = new BugsMetricsService(hostUrl, personalAccessToken, closedAtStart);
         newTasksMetricsService = new NewTasksMetricsService(hostUrl, personalAccessToken, closedAtStart);
+        testCoverageMetricsService = new TestCoverageMetricsService(hostUrl, personalAccessToken);
 
         HashMap<String, List<Issue>> columns = gitlabService.getColumnsMap(projectName, columnNames);
 
         generateCFDmetrics(columnNames, closedAtStart, columns);
         generateBugsMetrics(columns);
         generateNewTaskMetrics(columns);
+        generateTestCoverageMetrics();
+
 //        generateLeadTimeMetrics(projectName, columnNames, columns);
 //        generateCustomerLeadTimeMetrics(projectName, columnNames, columns);
     }
 
+    private static void generateTestCoverageMetrics() throws Exception {
+        TestCoverage testCoverage = testCoverageMetricsService.getTestCoverageLastWorkingDay(projectName);
+
+        if (testCoverage != null) {
+            List<List<Object>> newRows = new ArrayList<>();
+
+            ArrayList newTaskRow = new ArrayList();
+            newTaskRow.add(getFormattedDate(testCoverage.getUpdatedAt()));
+            newTaskRow.add(Double.parseDouble(testCoverage.getCoverage()));
+            newRows.add(newTaskRow);
+
+            sheetsService.persistNewRow("Coverage", newRows);
+        }
+    }
+
     private static void generateNewTaskMetrics(HashMap<String, List<Issue>> columns) throws Exception {
-        List<Issue> tasksCreatedYesterday = newTasksMetricsService.getTasksCreatedYesterday(projectName, columns);
+        List<Issue> tasksCreatedYesterday = newTasksMetricsService.getTasksCreatedYesterday(columns);
 
         StringBuffer urls = new StringBuffer();
         for (Issue issue : tasksCreatedYesterday) {
@@ -127,12 +146,6 @@ public class App {
     }
 
     private static void generateLeadTimeMetrics(String projectName, String[] columnNames, HashMap<String, List<Issue>> columns) throws Exception {
-
-        //TODO quitar
-//        columns.remove("Open");
-//        columns.remove("Closed");
-//        columns.remove("Reopen");
-//        closed.subList(closed.size() - 700, closed.size()).clear();
 
         List<IssueColumnStatuses> issuesStatuses =
                 gitlabService.getIssuesStatuses(projectName, columns, columnNames);

@@ -11,7 +11,7 @@ import java.util.*;
 
 public class BugsMetricsService extends GitlabService{
 
-    final String BUG_LABEL = "1- Critico";
+    final String BUG_LABEL = "Bug";
 
     public BugsMetricsService(String hostUrl, String personalAccessToken, int closedAtStart) throws GitLabApiException {
         super(hostUrl, personalAccessToken, closedAtStart);

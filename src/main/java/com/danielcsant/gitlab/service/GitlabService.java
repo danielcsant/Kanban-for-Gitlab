@@ -28,6 +28,10 @@ public abstract class GitlabService {
         this.closedAtStart = closedAtStart;
     }
 
+    public GitlabService(String hostUrl, String personalAccessToken) throws GitLabApiException {
+        this(hostUrl, personalAccessToken, -1);
+    }
+
     private void getProjectList() throws GitLabApiException {
         if (projects == null) {
             projects = gitLabApi.getProjectApi().getProjects();
