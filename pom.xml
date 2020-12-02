@@ -34,6 +34,12 @@
             <artifactId>google-api-services-sheets</artifactId>
             <version>v4-rev581-1.25.0</version>
         </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.22</version>
+        </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/junit/junit -->
         <dependency>
