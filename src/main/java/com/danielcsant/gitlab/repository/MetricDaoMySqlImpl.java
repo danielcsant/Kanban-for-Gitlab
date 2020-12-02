@@ -14,20 +14,38 @@ public class MetricDaoMySqlImpl implements IMetricDao {
     private final static Logger LOGGER = Logger.getLogger("com.danielcsant.gitlab.repository.MetricDaoMySqlImpl");
 
     @Override
-    public boolean insert(String tableName, List<Metric> metric) {
-
+    public boolean insert(String tableName, List<Metric> metrics) {
         boolean insert = false;
 
-        Statement stm= null;
+        PreparedStatement stm= null;
         Connection con=null;
-
-        String sql="INSERT INTO gitlab values (NULL)";
 
         try {
             con = MysqlConnection.connect();
             createTable(tableName, con);
-            stm = con.createStatement();
-            stm.execute(sql);
+            stm = con.prepareStatement("insert into " + tableName + " values(?,?,?,?,?,?,?,?,?,?)");
+            int i = 0;
+            for (Metric newMetric : metrics) {
+                stm.setDate(1, newMetric.getMetricDate());
+                stm.setInt(2, newMetric.getOpen());
+                stm.setInt(3, newMetric.getToDo());
+                stm.setInt(4, newMetric.getDoing());
+                stm.setInt(5, newMetric.getDesplegadoEnTest());
+                stm.setInt(6, newMetric.getDesplieguePendiente());
+                stm.setInt(7, newMetric.getDesplegado());
+                stm.setInt(8, newMetric.getNewBugs());
+                stm.setInt(9, newMetric.getMasterCoverage());
+                stm.setInt(10, newMetric.getNewTasks());
+
+                stm.addBatch();
+                i++;
+
+                if (i % 1000 == 0 || i == metrics.size()) {
+                    stm.executeBatch(); // Execute every 1000 items.
+                }
+
+            }
+
             insert=true;
             stm.close();
             con.close();
@@ -48,6 +66,7 @@ public class MetricDaoMySqlImpl implements IMetricDao {
 
         try {
             con = MysqlConnection.connect();
+            createTable(tableName, con);
 
             stm = con.prepareStatement("insert into " + tableName + " values(?,?,?,?,?,?,?,?,?,?)");
             stm.setDate(1, metric.getMetricDate());
@@ -61,7 +80,6 @@ public class MetricDaoMySqlImpl implements IMetricDao {
             stm.setInt(9, metric.getMasterCoverage());
             stm.setInt(10, metric.getNewTasks());
 
-            createTable(tableName, con);
             int i = stm.executeUpdate();
             LOGGER.info(i+" records inserted");
             insert=true;
