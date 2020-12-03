@@ -1,5 +1,7 @@
 package com.danielcsant.gitlab.repository;
 
+import com.danielcsant.gitlab.App;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -16,7 +18,7 @@ public class MysqlConnection {
 
         Properties prop = new Properties();
 
-        InputStream is = ClassLoader.getSystemResourceAsStream("app.properties");
+        InputStream is = MysqlConnection.class.getClassLoader().getResourceAsStream("app.properties");
         try {
             prop.load(is);
         } catch (IOException e) {
