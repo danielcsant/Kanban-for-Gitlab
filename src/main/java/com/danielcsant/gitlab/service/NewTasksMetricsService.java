@@ -8,8 +8,8 @@ import java.util.*;
 
 public class NewTasksMetricsService extends GitlabService{
 
-    public NewTasksMetricsService(String hostUrl, String personalAccessToken, int closedAtStart) throws GitLabApiException {
-        super(hostUrl, personalAccessToken, closedAtStart);
+    public NewTasksMetricsService(String hostUrl, String personalAccessToken) throws GitLabApiException {
+        super(hostUrl, personalAccessToken);
     }
 
 

@@ -22,8 +22,8 @@ public class MetricDaoMySqlImpl implements IMetricDao {
 
         try {
             con = MysqlConnection.connect();
-            createTable(tableName, con);
-            stm = con.prepareStatement("insert into " + tableName.toLowerCase() + " values(?,?,?,?,?,?,?,?,?,?)");
+            createTable(formatTableName(tableName), con);
+            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?)");
             int i = 0;
             for (Metric newMetric : metrics) {
                 stm.setDate(1, newMetric.getMetricDate());
@@ -57,6 +57,10 @@ public class MetricDaoMySqlImpl implements IMetricDao {
 
     }
 
+    private String formatTableName(String tableName) {
+        return tableName.toLowerCase().replaceAll("-","_");
+    }
+
     @Override
     public boolean insert(String tableName, Metric metric) {
         boolean insert = false;
@@ -66,9 +70,9 @@ public class MetricDaoMySqlImpl implements IMetricDao {
 
         try {
             con = MysqlConnection.connect();
-            createTable(tableName, con);
+            createTable(formatTableName(tableName), con);
 
-            stm = con.prepareStatement("insert into " + tableName.toLowerCase() + " values(?,?,?,?,?,?,?,?,?,?,?)");
+            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?)");
             stm.setDate(1, metric.getMetricDate());
             stm.setInt(2, metric.getOpen());
             stm.setInt(3, metric.getToDo());

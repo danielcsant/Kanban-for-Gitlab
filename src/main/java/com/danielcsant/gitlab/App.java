@@ -39,25 +39,31 @@ public class App {
 
         String personalAccessToken = prop.getProperty("personalAccessToken");
         String hostUrl = prop.getProperty("hostUrl");
-        projectName = prop.getProperty("projectName");
         String columnNames[] = {"Open","To Do","Doing","Desplegado en Test","Despliegue Pendiente","Desplegado","Closed"};
         String sheetId = prop.getProperty("sheetId");
-        int closedAtStart = Integer.parseInt(prop.getProperty("closedAtStart", "0"));
 
         sheetsService = new SheetsService(sheetId);
-        gitlabService = new CFDMetricsService(hostUrl, personalAccessToken, closedAtStart);
-        bugsMetricsService = new BugsMetricsService(hostUrl, personalAccessToken, closedAtStart);
-        newTasksMetricsService = new NewTasksMetricsService(hostUrl, personalAccessToken, closedAtStart);
+        gitlabService = new CFDMetricsService(hostUrl, personalAccessToken);
+        bugsMetricsService = new BugsMetricsService(hostUrl, personalAccessToken);
+        newTasksMetricsService = new NewTasksMetricsService(hostUrl, personalAccessToken);
         testCoverageMetricsService = new TestCoverageMetricsService(hostUrl, personalAccessToken);
 
-        HashMap<String, List<Issue>> columns = gitlabService.getColumnsMap(projectName, columnNames);
+        String [] projects = prop.getProperty("projects").split(",");
+        for (int i = 0; i < projects.length; i++) {
+            String [] projectData = projects[i].split(":");
+            projectName = projectData[0];
+            int closedAtStart = Integer.parseInt(projectData[1]);
+
+            HashMap<String, List<Issue>> columns = gitlabService.getColumnsMap(projectName, columnNames);
 
 //        generateCFDmetrics(columnNames, closedAtStart, columns);
 //        generateBugsMetrics(columns);
 //        generateNewTaskMetrics(columns);
 //        generateTestCoverageMetrics();
 
-        generateTodayMetrics(columnNames, columns, closedAtStart);
+            generateTodayMetrics(columnNames, columns, closedAtStart);
+
+        }
     }
 
     private static void generateTodayMetrics(String[] columnNames, HashMap<String, List<Issue>> columns, int closedAtStart) throws Exception {

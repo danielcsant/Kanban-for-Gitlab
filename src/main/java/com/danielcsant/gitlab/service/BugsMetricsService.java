@@ -6,15 +6,14 @@ import org.gitlab4j.api.models.LabelEvent;
 import org.gitlab4j.api.models.Project;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class BugsMetricsService extends GitlabService{
 
     final String BUG_LABEL = "Bug";
 
-    public BugsMetricsService(String hostUrl, String personalAccessToken, int closedAtStart) throws GitLabApiException {
-        super(hostUrl, personalAccessToken, closedAtStart);
+    public BugsMetricsService(String hostUrl, String personalAccessToken) throws GitLabApiException {
+        super(hostUrl, personalAccessToken);
     }
 
     public List<Issue> getBugsCreatedLastWorkingDay(String projectName, HashMap<String, List<Issue>> columns) throws Exception {

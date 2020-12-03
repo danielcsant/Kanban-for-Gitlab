@@ -16,20 +16,13 @@ public abstract class GitlabService {
 
     GitLabApi gitLabApi = null;
     List<Project> projects = null;
-    int closedAtStart = 0;
 
-    public GitlabService(String hostUrl, String personalAccessToken, int closedAtStart) throws GitLabApiException {
+    public GitlabService(String hostUrl, String personalAccessToken) throws GitLabApiException {
         // Create a GitLabApi instance to communicate with your GitLab server
         gitLabApi = new GitLabApi(hostUrl, personalAccessToken);
 
         // Get the list of projects your account has access to
         getProjectList();
-
-        this.closedAtStart = closedAtStart;
-    }
-
-    public GitlabService(String hostUrl, String personalAccessToken) throws GitLabApiException {
-        this(hostUrl, personalAccessToken, -1);
     }
 
     private void getProjectList() throws GitLabApiException {

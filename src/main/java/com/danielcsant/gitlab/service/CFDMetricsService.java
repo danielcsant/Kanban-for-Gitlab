@@ -2,23 +2,20 @@ package com.danielcsant.gitlab.service;
 
 import com.danielcsant.gitlab.model.ColumnStatus;
 import com.danielcsant.gitlab.model.IssueColumnStatuses;
-import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.Issue;
-import org.gitlab4j.api.models.IssuesStatistics;
 import org.gitlab4j.api.models.LabelEvent;
 import org.gitlab4j.api.models.Project;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class CFDMetricsService extends GitlabService {
 
 
 
-    public CFDMetricsService(String hostUrl, String personalAccessToken, int closedAtStart) throws GitLabApiException {
-        super(hostUrl, personalAccessToken, closedAtStart);
+    public CFDMetricsService(String hostUrl, String personalAccessToken) throws GitLabApiException {
+        super(hostUrl, personalAccessToken);
     }
 
     public HashMap<String, List<Issue>> getColumnsMap(String projectName, String[] columnNames) throws Exception {

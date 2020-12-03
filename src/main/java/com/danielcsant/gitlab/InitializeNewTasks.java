@@ -37,8 +37,8 @@ public class InitializeNewTasks {
         int closedAtStart = Integer.parseInt(prop.getProperty("closedAtStart", "0"));
 
         sheetsService = new SheetsService(sheetId);
-        gitlabService = new CFDMetricsService(hostUrl, personalAccessToken, closedAtStart);
-        newTasksMetricsService = new NewTasksMetricsService(hostUrl, personalAccessToken, closedAtStart);
+        gitlabService = new CFDMetricsService(hostUrl, personalAccessToken);
+        newTasksMetricsService = new NewTasksMetricsService(hostUrl, personalAccessToken);
 
         HashMap<String, List<Issue>> columns = gitlabService.getColumnsMap(projectName, columnNames);
 
