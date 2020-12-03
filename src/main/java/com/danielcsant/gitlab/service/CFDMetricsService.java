@@ -100,35 +100,6 @@ public class CFDMetricsService extends GitlabService {
         return columns;
     }
 
-    public List<IssueColumnStatuses> getIssuesStatuses(String projectName, HashMap<String, List<Issue>> columns, String[] columnNames) throws Exception {
-
-        List<IssueColumnStatuses> issuesStatuses = new ArrayList<>();
-
-        for (int i = 0; i < columnNames.length; i++) {
-            String columnName = columnNames[i];
-            List<Issue> issuesInColumn = columns.get(columnName);
-            if (issuesInColumn == null) {
-                continue;
-            }
-
-            Project project = getProject(projectName);
-
-            for (Issue issue : issuesInColumn) {
-                List<LabelEvent> labelEvents = gitLabApi
-                        .getResourceLabelEventsApi()
-                        .getIssueLabelEvents(project.getId(), issue.getIid());
-
-                if (labelEvents != null && !labelEvents.isEmpty()){
-                    IssueColumnStatuses issueColumnStatuses = getIssueColumnStatuses(columnNames, issue, labelEvents);
-                    issuesStatuses.add(issueColumnStatuses);
-                }
-            }
-        }
-
-        return issuesStatuses;
-
-    }
-
     private IssueColumnStatuses getIssueColumnStatuses(String[] columnNames, Issue issue, List<LabelEvent> labelEvents) throws ParseException {
         IssueColumnStatuses issueColumnStatuses = new IssueColumnStatuses(issue);
         for (int j = 0; j < columnNames.length; j++) {

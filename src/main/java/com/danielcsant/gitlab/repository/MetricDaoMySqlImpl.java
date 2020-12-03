@@ -23,7 +23,7 @@ public class MetricDaoMySqlImpl implements IMetricDao {
         try {
             con = MysqlConnection.connect();
             createTable(tableName, con);
-            stm = con.prepareStatement("insert into " + tableName + " values(?,?,?,?,?,?,?,?,?,?)");
+            stm = con.prepareStatement("insert into " + tableName.toLowerCase() + " values(?,?,?,?,?,?,?,?,?,?)");
             int i = 0;
             for (Metric newMetric : metrics) {
                 stm.setDate(1, newMetric.getMetricDate());
@@ -68,7 +68,7 @@ public class MetricDaoMySqlImpl implements IMetricDao {
             con = MysqlConnection.connect();
             createTable(tableName, con);
 
-            stm = con.prepareStatement("insert into " + tableName + " values(?,?,?,?,?,?,?,?,?,?)");
+            stm = con.prepareStatement("insert into " + tableName.toLowerCase() + " values(?,?,?,?,?,?,?,?,?,?,?)");
             stm.setDate(1, metric.getMetricDate());
             stm.setInt(2, metric.getOpen());
             stm.setInt(3, metric.getToDo());
@@ -76,9 +76,10 @@ public class MetricDaoMySqlImpl implements IMetricDao {
             stm.setInt(5, metric.getDesplegadoEnTest());
             stm.setInt(6, metric.getDesplieguePendiente());
             stm.setInt(7, metric.getDesplegado());
-            stm.setInt(8, metric.getNewBugs());
-            stm.setInt(9, metric.getMasterCoverage());
-            stm.setInt(10, metric.getNewTasks());
+            stm.setInt(8, metric.getClosed());
+            stm.setInt(9, metric.getNewBugs());
+            stm.setInt(10, metric.getMasterCoverage());
+            stm.setInt(11, metric.getNewTasks());
 
             int i = stm.executeUpdate();
             LOGGER.info(i+" records inserted");
@@ -93,7 +94,7 @@ public class MetricDaoMySqlImpl implements IMetricDao {
     }
 
     private void createTable(String tableName, Connection con) throws SQLException {
-        String sqlCreate = "CREATE TABLE IF NOT EXISTS `" + tableName + "` (\n" +
+        String sqlCreate = "CREATE TABLE IF NOT EXISTS `" + tableName.toLowerCase() + "` (\n" +
                 "  `metric_date` date NOT NULL,\n" +
                 "  `open` int(11) NOT NULL,\n" +
                 "  `to_do` int(11) NOT NULL,\n" +
@@ -101,6 +102,7 @@ public class MetricDaoMySqlImpl implements IMetricDao {
                 "  `desplegado_en_test` int(11) NOT NULL,\n" +
                 "  `despliegue_pendiente` int(11) NOT NULL,\n" +
                 "  `desplegado` int(11) NOT NULL,\n" +
+                "  `closed` int(11) NOT NULL,\n" +
                 "  `new_bugs` int(11) NOT NULL,\n" +
                 "  `master_coverage` int(11) NOT NULL,\n" +
                 "  `new_tasks` int(11) NOT NULL\n" +

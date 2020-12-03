@@ -1,10 +1,10 @@
 package com.danielcsant.gitlab;
 
-import com.danielcsant.gitlab.model.ColumnStatus;
-import com.danielcsant.gitlab.model.IssueColumnStatuses;
+import com.danielcsant.gitlab.model.Metric;
 import com.danielcsant.gitlab.model.TestCoverage;
+import com.danielcsant.gitlab.repository.IMetricDao;
+import com.danielcsant.gitlab.repository.MetricDaoMySqlImpl;
 import com.danielcsant.gitlab.service.*;
-import org.gitlab4j.api.Constants;
 import org.gitlab4j.api.models.Issue;
 
 import java.io.IOException;
@@ -13,7 +13,6 @@ import java.security.GeneralSecurityException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class App {
@@ -41,7 +40,7 @@ public class App {
         String personalAccessToken = prop.getProperty("personalAccessToken");
         String hostUrl = prop.getProperty("hostUrl");
         projectName = prop.getProperty("projectName");
-        String columnNames[] = prop.getProperty("columns").split(",");
+        String columnNames[] = {"Open","To Do","Doing","Desplegado en Test","Despliegue Pendiente","Desplegado","Closed"};
         String sheetId = prop.getProperty("sheetId");
         int closedAtStart = Integer.parseInt(prop.getProperty("closedAtStart", "0"));
 
@@ -53,13 +52,54 @@ public class App {
 
         HashMap<String, List<Issue>> columns = gitlabService.getColumnsMap(projectName, columnNames);
 
-        generateCFDmetrics(columnNames, closedAtStart, columns);
-        generateBugsMetrics(columns);
-        generateNewTaskMetrics(columns);
-        generateTestCoverageMetrics();
+//        generateCFDmetrics(columnNames, closedAtStart, columns);
+//        generateBugsMetrics(columns);
+//        generateNewTaskMetrics(columns);
+//        generateTestCoverageMetrics();
 
-//        generateLeadTimeMetrics(projectName, columnNames, columns);
-//        generateCustomerLeadTimeMetrics(projectName, columnNames, columns);
+        generateTodayMetrics(columnNames, columns, closedAtStart);
+    }
+
+    private static void generateTodayMetrics(String[] columnNames, HashMap<String, List<Issue>> columns, int closedAtStart) throws Exception {
+        Date today = Calendar.getInstance().getTime();
+        java.sql.Date sqlDate = new java.sql.Date(today.getTime());
+
+        HashMap<String, Integer> columnMap = new HashMap();
+        for (int i = 0; i < columnNames.length; i++) {
+            String columnName = columnNames[i];
+            int columnSize = columns.get(columnName).size();
+            if (columnName.equalsIgnoreCase("closed")){
+                columnMap.put(columnName, columnSize - closedAtStart);
+            } else {
+                columnMap.put(columnName, columnSize);
+            }
+        }
+
+        List<Issue> bugsCreatedYesterday = bugsMetricsService.getBugsCreatedLastWorkingDay(projectName, columns);
+        columnMap.put("New bugs", bugsCreatedYesterday.size());
+
+        List<Issue> tasksCreatedYesterday = newTasksMetricsService.getTasksCreatedYesterday(columns);
+        columnMap.put("New tasks", tasksCreatedYesterday.size());
+
+        TestCoverage testCoverage = testCoverageMetricsService.getTestCoverageLastWorkingDay(projectName);
+        columnMap.put("Coverage", (int) Double.parseDouble(testCoverage.getCoverage()));
+
+        Metric newMetric = new Metric(
+                sqlDate,
+                columnMap.get("Open"),
+                columnMap.get("To Do"),
+                columnMap.get("Doing"),
+                columnMap.get("Desplegado en Test"),
+                columnMap.get("Despliegue Pendiente"),
+                columnMap.get("Desplegado"),
+                columnMap.get("Closed"),
+                columnMap.get("New bugs"),
+                columnMap.get("Coverage"),
+                columnMap.get("New tasks")
+                );
+
+        IMetricDao iMetricDao = new MetricDaoMySqlImpl();
+        iMetricDao.insert(projectName, newMetric);
     }
 
     private static void generateTestCoverageMetrics() throws Exception {
@@ -69,7 +109,7 @@ public class App {
             List<List<Object>> newRows = new ArrayList<>();
 
             ArrayList newTaskRow = new ArrayList();
-            newTaskRow.add(getFormattedDate(testCoverage.getUpdatedAt()));
+            newTaskRow.add(getFormattedDate(new Date()));
             newTaskRow.add(Double.parseDouble(testCoverage.getCoverage()));
             newRows.add(newTaskRow);
 
@@ -103,7 +143,7 @@ public class App {
 
     private static void generateBugsMetrics(HashMap<String, List<Issue>> columns) throws Exception {
 
-        List<Issue> bugsCreatedYesterday = bugsMetricsService.getBugsCreatedYesterday(projectName, columns);
+        List<Issue> bugsCreatedYesterday = bugsMetricsService.getBugsCreatedLastWorkingDay(projectName, columns);
 
         StringBuffer urls = new StringBuffer();
         for (Issue issue : bugsCreatedYesterday) {
@@ -145,44 +185,6 @@ public class App {
 
     }
 
-    private static void generateLeadTimeMetrics(String projectName, String[] columnNames, HashMap<String, List<Issue>> columns) throws Exception {
-
-        List<IssueColumnStatuses> issuesStatuses =
-                gitlabService.getIssuesStatuses(projectName, columns, columnNames);
-
-        Date date = Calendar.getInstance().getTime();
-        String today = getFormattedDateWithHours(date);
-
-        List<List<Object>> newRows = new ArrayList<>();
-        ArrayList leadtimeRow = null;
-
-        List cycleTimeColumns = Arrays.asList("Doing", "Desplegado en Test");
-        for (IssueColumnStatuses issuesStatus : issuesStatuses) {
-            Issue issue = issuesStatus.getIssue();
-            if (issue.getState() == Constants.IssueState.CLOSED) {
-                Date startDate = getEarliestDateInIssue(issuesStatus.getColumnStatusHashMap(), cycleTimeColumns);
-                Date endDate = getLatestDateInIssue(issuesStatus.getColumnStatusHashMap(), cycleTimeColumns);
-                long hoursBetweenDates = 0;
-                try {
-                    hoursBetweenDates = getHoursBetweenDates(startDate, endDate);
-                } catch (NullPointerException npe){
-                    LOGGER.log(Level.SEVERE, issuesStatus.toString());
-                }
-                String issueSize = getIssueSize(issue);
-
-                leadtimeRow = new ArrayList();
-                leadtimeRow.add(issue.getIid());
-                leadtimeRow.add(hoursBetweenDates);
-                leadtimeRow.add(issueSize);
-                newRows.add(leadtimeRow);
-
-            }
-        }
-
-        sheetsService.persistNewRow("Lead times (draft)", newRows);
-
-    }
-
     private static String getIssueSize(Issue issue) {
         String issueSize = "";
 
@@ -203,38 +205,6 @@ public class App {
         long hours = secs / 3600;
 
         return hours;
-    }
-
-    private static Date getLatestDateInIssue(HashMap<String, ColumnStatus> columnStatusHashMap, List cycleTimeColumns) {
-        Date latestDate = null;
-
-        for (String s : columnStatusHashMap.keySet()) {
-            if (cycleTimeColumns.contains(s)){
-                Date removedDate = columnStatusHashMap.get(s).getRemovedDate();
-                if (removedDate != null &&
-                        (latestDate == null || latestDate.before(removedDate))) {
-                    latestDate = removedDate;
-                }
-            }
-        }
-
-        return latestDate;
-    }
-
-    private static Date getEarliestDateInIssue(HashMap<String, ColumnStatus> columnStatuses, List<String> cycleTimeColumns) {
-        Date earliestDate = null;
-
-        for (String s : columnStatuses.keySet()) {
-            if (cycleTimeColumns.contains(s)){
-                Date addedDate = columnStatuses.get(s).getAddedDate();
-                if (addedDate!= null &&
-                        (earliestDate == null || earliestDate.after(addedDate))) {
-                    earliestDate = addedDate;
-                }
-            }
-        }
-
-        return earliestDate;
     }
 
     private static void generateCFDmetrics(String[] columnNames,

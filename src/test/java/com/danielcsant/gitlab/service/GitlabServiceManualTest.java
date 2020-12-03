@@ -37,17 +37,4 @@ public class GitlabServiceManualTest {
         gitlabService = new CFDMetricsService(hostUrl, personalAccessToken, closedAtStart);
     }
 
-    @Test
-    public void getIssuesStatuses() throws Exception {
-        Issue issue = gitlabService.getIssue(projectName, 1294);
-        HashMap<String, List<Issue>> columns = new HashMap<>();
-        columns.put("Closed", Arrays.asList(issue));
-
-        List<IssueColumnStatuses> result = gitlabService.getIssuesStatuses(projectName, columns, columnNames);
-
-        Assert.assertEquals(1, result.size());
-        ColumnStatus doingColumnStatus = result.get(0).getColumnStatusHashMap().get("Doing");
-        Assert.assertNotNull(doingColumnStatus.getAddedDate());
-        Assert.assertNotNull(doingColumnStatus.getRemovedDate());
-    }
 }

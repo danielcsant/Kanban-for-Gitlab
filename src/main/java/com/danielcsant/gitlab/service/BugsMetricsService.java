@@ -17,7 +17,7 @@ public class BugsMetricsService extends GitlabService{
         super(hostUrl, personalAccessToken, closedAtStart);
     }
 
-    public List<Issue> getBugsCreatedYesterday(String projectName, HashMap<String, List<Issue>> columns) throws Exception {
+    public List<Issue> getBugsCreatedLastWorkingDay(String projectName, HashMap<String, List<Issue>> columns) throws Exception {
         Project project = getProject(projectName);
         List<Issue> result = new ArrayList<>();
         for (List<Issue> valuesColumn : columns.values()) {

@@ -1,8 +1,8 @@
 package com.danielcsant.gitlab.service;
 
 import com.danielcsant.gitlab.model.TestCoverage;
+import org.gitlab4j.api.Constants;
 import org.gitlab4j.api.GitLabApiException;
-import org.gitlab4j.api.models.Issue;
 import org.gitlab4j.api.models.Pipeline;
 import org.gitlab4j.api.models.PipelineFilter;
 import org.gitlab4j.api.models.PipelineStatus;
@@ -10,9 +10,12 @@ import org.gitlab4j.api.models.PipelineStatus;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class TestCoverageMetricsService extends GitlabService{
+
+    private final static Logger LOGGER = Logger.getLogger("com.danielcsant.gitlab.service.TestCoverageMetricsService");
 
     public TestCoverageMetricsService(String hostUrl, String personalAccessToken) throws GitLabApiException {
         super(hostUrl, personalAccessToken);
@@ -54,21 +57,26 @@ public class TestCoverageMetricsService extends GitlabService{
         TestCoverage testCoverage = null;
         PipelineFilter pipelineFilter = new PipelineFilter();
         pipelineFilter.withRef("master");
+        pipelineFilter.withOrderBy(Constants.PipelineOrderBy.UPDATED_AT);
+        pipelineFilter.setSort(Constants.SortOrder.DESC);
         List<Pipeline> pipelineList = gitLabApi.getPipelineApi()
                 .getPipelines(getProject(projectName), pipelineFilter);
         for (Pipeline pipeline : pipelineList) {
-            if (pipeline.getStatus() == PipelineStatus.SUCCESS &&
-                    wasUpdatedInLastLaborDay(pipeline.getUpdatedAt())) {
-                Date updatedAt = pipeline.getUpdatedAt();
-
+            if (pipeline.getStatus() == PipelineStatus.SUCCESS) {
                 String coverage = gitLabApi.getPipelineApi()
                         .getPipeline(getProject(projectName), pipeline.getId())
                         .getCoverage();
                 if (coverage == null || coverage.equals("")){
                     coverage = "0";
                 }
-                testCoverage = new TestCoverage(updatedAt, coverage);
+                testCoverage = new TestCoverage(new Date(), coverage);
+                break;
             }
+        }
+
+        if (testCoverage == null) {
+            LOGGER.warning("Master branch in project " + projectName + " does not exist.");
+            testCoverage = new TestCoverage(new Date(),"0");
         }
 
         return testCoverage;
