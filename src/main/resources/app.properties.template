@@ -3,7 +3,7 @@ hostUrl=https://git.DOMAIN.com/
 sheetId=1XhxJ8SvU_FBmKXG7UzWRQ806hYku96Mdsfeaffdff
 
 ## poyects=projectName1:closedIssuesAtStart,projectName2:closedIssuesAtStart,...
-projects=Naturitas:1399,scalpers-v11:1265
+projects=projectx:1399,projecty:1265
 
 ## MySql
 mysqlHost=

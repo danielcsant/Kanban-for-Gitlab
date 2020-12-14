@@ -56,11 +56,13 @@ public class App {
 
             HashMap<String, List<Issue>> columns = gitlabService.getColumnsMap(projectName, columnNames);
 
-//        generateCFDmetrics(columnNames, closedAtStart, columns);
-//        generateBugsMetrics(columns);
-//        generateNewTaskMetrics(columns);
-//        generateTestCoverageMetrics();
+            // Writing in excel
+            generateCFDmetrics(columnNames, closedAtStart, columns);
+            generateBugsMetrics(columns);
+            generateNewTaskMetrics(columns);
+            generateTestCoverageMetrics();
 
+            // Writing in MySQL
             generateTodayMetrics(columnNames, columns, closedAtStart);
 
         }
