@@ -56,11 +56,14 @@ public class App {
 
             HashMap<String, List<Issue>> columns = gitlabService.getColumnsMap(projectName, columnNames);
 
-            // Writing in excel
-            generateCFDmetrics(columnNames, closedAtStart, columns);
-            generateBugsMetrics(columns);
-            generateNewTaskMetrics(columns);
-            generateTestCoverageMetrics();
+            // Remove when MYSQL migration is done. Now writing in excel just for first project...
+            if (i == 0) {
+                // Writing in excel
+                generateCFDmetrics(columnNames, closedAtStart, columns);
+                generateBugsMetrics(columns);
+                generateNewTaskMetrics(columns);
+                generateTestCoverageMetrics();
+            }
 
             // Writing in MySQL
             generateTodayMetrics(columnNames, columns, closedAtStart);
