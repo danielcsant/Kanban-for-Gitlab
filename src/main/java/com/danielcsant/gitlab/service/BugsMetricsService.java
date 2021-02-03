@@ -16,12 +16,11 @@ public class BugsMetricsService extends GitlabService{
         super(hostUrl, personalAccessToken);
     }
 
-    public List<Issue> getBugsCreatedLastWorkingDay(String projectName, HashMap<String, List<Issue>> columns) throws Exception {
-        Project project = getProject(projectName);
+    public List<Issue> getBugsCreatedLastWorkingDay(String pathWithNamespace, HashMap<String, List<Issue>> columns) throws Exception {
         List<Issue> result = new ArrayList<>();
         for (List<Issue> valuesColumn : columns.values()) {
             for (Issue issue : valuesColumn) {
-                if (isBug(issue) && wasCreatedInLastLaborDay(project, issue)){
+                if (isBug(issue) && wasCreatedInLastLaborDay(pathWithNamespace, issue)){
                     result.add(issue);
                 }
             }
@@ -30,10 +29,10 @@ public class BugsMetricsService extends GitlabService{
         return result;
     }
 
-    private boolean wasCreatedInLastLaborDay(Project project, Issue issue) throws GitLabApiException, ParseException {
+    private boolean wasCreatedInLastLaborDay(String pathWithNamespace, Issue issue) throws GitLabApiException, ParseException {
         List<LabelEvent> labelEvents = gitLabApi
                 .getResourceLabelEventsApi()
-                .getIssueLabelEvents(project.getId(), issue.getIid());
+                .getIssueLabelEvents(pathWithNamespace, issue.getIid());
 
         Date createdAsBug = null;
         for (LabelEvent labelEvent : labelEvents) {

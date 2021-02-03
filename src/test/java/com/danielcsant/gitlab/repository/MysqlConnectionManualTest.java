@@ -38,6 +38,31 @@ public class MysqlConnectionManualTest {
     }
 
     @Test
+    public void validateTableNameTest() throws Exception {
+        IMetricDao iMetricDao = new MetricDaoMySqlImpl();
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+        Date myDate = formatter.parse("2020-12-1");
+        java.sql.Date sqlDate = new java.sql.Date(myDate.getTime());
+        Metric newMetric = new Metric(
+                sqlDate,
+                1,
+                2,
+                3,
+                4,
+                5,
+                6,
+                7,
+                8,
+                9,
+                10
+        );
+
+        boolean result = iMetricDao.insert("odoo-11/Naturitas", newMetric);
+
+        Assert.assertTrue(result);
+    }
+
+    @Test
     public void bulkInsertMetricTest() throws Exception {
         IMetricDao iMetricDao = new MetricDaoMySqlImpl();
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");

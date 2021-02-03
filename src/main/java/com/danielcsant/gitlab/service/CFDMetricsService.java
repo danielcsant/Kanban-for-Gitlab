@@ -18,8 +18,7 @@ public class CFDMetricsService extends GitlabService {
         super(hostUrl, personalAccessToken);
     }
 
-    public HashMap<String, List<Issue>> getColumnsMap(String projectName, String[] columnNames) throws Exception {
-        Project project = getProject(projectName);
+    public HashMap<String, List<Issue>> getColumnsMap(String pathWithNamespace, String[] columnNames) throws Exception {
 
         HashMap<String, List<Issue>> columns = new HashMap<>();
         for (int i = 0; i < columnNames.length; i++) {
@@ -31,7 +30,7 @@ public class CFDMetricsService extends GitlabService {
         List<Issue> reopenedIssues = new ArrayList<>();
         List<Issue> closedIssues = new ArrayList<>();
         // Get a list of issues for the specified project ID
-        List<Issue> issues = gitLabApi.getIssuesApi().getIssues(project.getId());
+        List<Issue> issues = gitLabApi.getIssuesApi().getIssues(pathWithNamespace);
         for (Issue issue : issues) {
             switch (issue.getState()) {
                 case OPENED:
@@ -157,7 +156,4 @@ public class CFDMetricsService extends GitlabService {
         return labelEventsForColumn;
     }
 
-    public Issue getIssue(String projectName, int iId) throws Exception {
-        return gitLabApi.getIssuesApi().getIssue(getProject(projectName), iId);
-    }
 }

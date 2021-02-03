@@ -58,7 +58,13 @@ public class MetricDaoMySqlImpl implements IMetricDao {
     }
 
     private String formatTableName(String tableName) {
-        return tableName.toLowerCase().replaceAll("-","_");
+        String tableNameAux = tableName;
+        if (tableNameAux.indexOf("/") != -1) {
+            tableNameAux = tableNameAux.substring(tableNameAux.indexOf("/") + 1);
+        }
+        return tableNameAux
+                .toLowerCase()
+                .replaceAll("-","_");
     }
 
     @Override

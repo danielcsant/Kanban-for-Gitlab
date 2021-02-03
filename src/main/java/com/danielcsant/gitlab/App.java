@@ -177,47 +177,6 @@ public class App {
         sheetsService.persistNewRow("Bugs", newRows);
     }
 
-    private static void generateCustomerLeadTimeMetrics(String projectName, String[] columnNames, HashMap<String, List<Issue>> columns) throws Exception {
-        List<List<Object>> newRows = new ArrayList<>();
-
-        for (Issue issue : columns.get("Closed")) {
-            ArrayList customerLeadtimeRow = new ArrayList();
-            customerLeadtimeRow.add(issue.getIid());
-            customerLeadtimeRow.add(getFormattedDateWithHours(issue.getCreatedAt()));
-            customerLeadtimeRow.add(getFormattedDateWithHours(issue.getClosedAt()));
-            customerLeadtimeRow.add(getHoursBetweenDates(issue.getCreatedAt(), issue.getClosedAt()));
-            customerLeadtimeRow.add(getIssueSize(issue));
-            customerLeadtimeRow.add(issue.getWebUrl());
-            newRows.add(customerLeadtimeRow);
-        }
-
-        Collections.reverse(newRows);
-        sheetsService.updateRows("Customer Lead Times", newRows);
-
-    }
-
-    private static String getIssueSize(Issue issue) {
-        String issueSize = "";
-
-        List issueSizes = Arrays.asList("XS", "S", "M", "L", "XL", "XXL");
-        if (!issue.getLabels().isEmpty()) {
-            for (String label : issue.getLabels()) {
-                if (issueSizes.contains(label)){
-                    issueSize = label;
-                }
-            }
-        }
-
-        return issueSize;
-    }
-
-    private static long getHoursBetweenDates(Date startDate, Date endDate) throws NullPointerException {
-        long secs = (endDate.getTime() - startDate.getTime()) / 1000;
-        long hours = secs / 3600;
-
-        return hours;
-    }
-
     private static void generateCFDmetrics(String[] columnNames,
                                                     int closedAtStart,
                                                     HashMap<String,List<Issue>> columns) throws GeneralSecurityException, IOException {
@@ -240,12 +199,7 @@ public class App {
 
         List<List<Object>> newRow = new ArrayList<>();
         newRow.add(cfdRow);
-        sheetsService.persistNewRow("CFD", newRow);
-    }
-
-    private static String getFormattedDateWithHours(Date date) {
-        DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        return formatter.format(date);
+//        sheetsService.persistNewRow("CFD", newRow);
     }
 
     private static String getFormattedDate(Date date) {

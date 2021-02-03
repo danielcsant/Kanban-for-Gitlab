@@ -31,21 +31,6 @@ public abstract class GitlabService {
         }
     }
 
-    protected Project getProject(String projectName) throws Exception {
-        Project project = null;
-        for (Project projectIter : projects) {
-            if (projectIter.getName().equalsIgnoreCase(projectName)){
-                project = projectIter;
-                break;
-            }
-        }
-
-        if (project == null){
-            throw new Exception("Project not found");
-        }
-        return project;
-    }
-
     protected Date getDate(String date) throws ParseException {
         return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").parse(date);
     }

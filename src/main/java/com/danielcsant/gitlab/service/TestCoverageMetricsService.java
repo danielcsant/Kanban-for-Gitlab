@@ -21,7 +21,7 @@ public class TestCoverageMetricsService extends GitlabService{
         super(hostUrl, personalAccessToken);
     }
 
-    public List<TestCoverage> getTestCoverageHistory(String projectName) throws Exception {
+    public List<TestCoverage> getTestCoverageHistory(String pathWithNamespace) throws Exception {
         List<TestCoverage> result = new ArrayList<>();
         HashMap<String, TestCoverage> testCoverageHashMap = new HashMap<>();
 
@@ -29,14 +29,14 @@ public class TestCoverageMetricsService extends GitlabService{
         PipelineFilter pipelineFilter = new PipelineFilter();
         pipelineFilter.withRef("master");
         List<Pipeline> pipelineList = gitLabApi.getPipelineApi()
-                .getPipelines(getProject(projectName), pipelineFilter);
+                .getPipelines(pathWithNamespace, pipelineFilter);
         for (Pipeline pipeline : pipelineList) {
             if (pipeline.getStatus() == PipelineStatus.SUCCESS) {
                 Date updatedAt = pipeline.getUpdatedAt();
 
                 if (!testCoverageHashMap.containsKey(updatedAt)){
                     String coverage = gitLabApi.getPipelineApi()
-                            .getPipeline(getProject(projectName), pipeline.getId())
+                            .getPipeline(pathWithNamespace, pipeline.getId())
                             .getCoverage();
                     if (coverage == null || coverage.equals("")){
                         coverage = "0";
@@ -52,7 +52,7 @@ public class TestCoverageMetricsService extends GitlabService{
         return result;
     }
 
-    public TestCoverage getTestCoverageLastWorkingDay(String projectName) throws Exception {
+    public TestCoverage getTestCoverageLastWorkingDay(String pathWithNamespace) throws Exception {
 
         TestCoverage testCoverage = null;
         PipelineFilter pipelineFilter = new PipelineFilter();
@@ -60,11 +60,11 @@ public class TestCoverageMetricsService extends GitlabService{
         pipelineFilter.withOrderBy(Constants.PipelineOrderBy.UPDATED_AT);
         pipelineFilter.setSort(Constants.SortOrder.DESC);
         List<Pipeline> pipelineList = gitLabApi.getPipelineApi()
-                .getPipelines(getProject(projectName), pipelineFilter);
+                .getPipelines(pathWithNamespace, pipelineFilter);
         for (Pipeline pipeline : pipelineList) {
             if (pipeline.getStatus() == PipelineStatus.SUCCESS) {
                 String coverage = gitLabApi.getPipelineApi()
-                        .getPipeline(getProject(projectName), pipeline.getId())
+                        .getPipeline(pathWithNamespace, pipeline.getId())
                         .getCoverage();
                 if (coverage == null || coverage.equals("")){
                     coverage = "0";
@@ -75,7 +75,7 @@ public class TestCoverageMetricsService extends GitlabService{
         }
 
         if (testCoverage == null) {
-            LOGGER.warning("Master branch in project " + projectName + " does not exist.");
+            LOGGER.warning("Master branch in project " + pathWithNamespace + " does not exist.");
             testCoverage = new TestCoverage(new Date(),"0");
         }
 
