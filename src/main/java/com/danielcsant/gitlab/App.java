@@ -65,12 +65,12 @@ public class App {
 
         LOGGER.info("Inserting metrics for " + metrics.size() + " projects");
         IMetricDao iMetricDao = new MetricDaoMySqlImpl();
-//        boolean inserted = iMetricDao.insert("project", metrics);
-//        if (inserted){
-//            LOGGER.info("Inserted");
-//        } else {
-//            LOGGER.warning("No metrics inserted");
-//        }
+        boolean inserted = iMetricDao.insert("project", metrics);
+        if (inserted){
+            LOGGER.info("Inserted");
+        } else {
+            LOGGER.warn("No metrics inserted");
+        }
 
     }
 
