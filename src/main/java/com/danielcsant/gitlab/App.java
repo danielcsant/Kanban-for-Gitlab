@@ -106,11 +106,12 @@ public class App {
                 columnMap.get("Closed"),
                 columnMap.get("New bugs"),
                 columnMap.get("Coverage"),
-                columnMap.get("New tasks")
+                columnMap.get("New tasks"),
+                projectName
                 );
 
         IMetricDao iMetricDao = new MetricDaoMySqlImpl();
-        iMetricDao.insert(projectName, newMetric);
+        iMetricDao.insert("project", newMetric);
     }
 
     private static void generateTestCoverageMetrics() throws Exception {

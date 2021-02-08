@@ -29,10 +29,11 @@ public class MysqlConnectionManualTest {
                 7,
                 8,
                 9,
-                10
+                10,
+                "project foo"
         );
 
-        boolean result = iMetricDao.insert("naturitas", newMetric);
+        boolean result = iMetricDao.insert("project", newMetric);
 
         Assert.assertTrue(result);
     }
@@ -54,10 +55,11 @@ public class MysqlConnectionManualTest {
                 7,
                 8,
                 9,
-                10
+                10,
+                "project foo"
         );
 
-        boolean result = iMetricDao.insert("odoo-11/Naturitas", newMetric);
+        boolean result = iMetricDao.insert("project", newMetric);
 
         Assert.assertTrue(result);
     }
@@ -81,13 +83,14 @@ public class MysqlConnectionManualTest {
                     7,
                     8,
                     9,
-                    10
+                    10,
+                    "project foo"
             );
             metricList.add(newMetric);
         }
 
 
-        boolean result = iMetricDao.insert("naturitas", metricList);
+        boolean result = iMetricDao.insert("project", metricList);
 
         Assert.assertTrue(result);
     }

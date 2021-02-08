@@ -23,7 +23,7 @@ public class MetricDaoMySqlImpl implements IMetricDao {
         try {
             con = MysqlConnection.connect();
             createTable(formatTableName(tableName), con);
-            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?)");
+            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?,?)");
             int i = 0;
             for (Metric newMetric : metrics) {
                 stm.setDate(1, newMetric.getMetricDate());
@@ -33,9 +33,11 @@ public class MetricDaoMySqlImpl implements IMetricDao {
                 stm.setInt(5, newMetric.getDesplegadoEnTest());
                 stm.setInt(6, newMetric.getDesplieguePendiente());
                 stm.setInt(7, newMetric.getDesplegado());
-                stm.setInt(8, newMetric.getNewBugs());
-                stm.setInt(9, newMetric.getMasterCoverage());
-                stm.setInt(10, newMetric.getNewTasks());
+                stm.setInt(8, newMetric.getClosed());
+                stm.setInt(9, newMetric.getNewBugs());
+                stm.setInt(10, newMetric.getMasterCoverage());
+                stm.setInt(11, newMetric.getNewTasks());
+                stm.setString(12, newMetric.getProject());
 
                 stm.addBatch();
                 i++;
@@ -78,7 +80,7 @@ public class MetricDaoMySqlImpl implements IMetricDao {
             con = MysqlConnection.connect();
             createTable(formatTableName(tableName), con);
 
-            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?)");
+            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?,?)");
             stm.setDate(1, metric.getMetricDate());
             stm.setInt(2, metric.getOpen());
             stm.setInt(3, metric.getToDo());
@@ -90,6 +92,7 @@ public class MetricDaoMySqlImpl implements IMetricDao {
             stm.setInt(9, metric.getNewBugs());
             stm.setInt(10, metric.getMasterCoverage());
             stm.setInt(11, metric.getNewTasks());
+            stm.setString(12, metric.getProject());
 
             int i = stm.executeUpdate();
             LOGGER.info(i+" records inserted");
@@ -115,7 +118,8 @@ public class MetricDaoMySqlImpl implements IMetricDao {
                 "  `closed` int(11) NOT NULL,\n" +
                 "  `new_bugs` int(11) NOT NULL,\n" +
                 "  `master_coverage` int(11) NOT NULL,\n" +
-                "  `new_tasks` int(11) NOT NULL\n" +
+                "  `new_tasks` int(11) NOT NULL,\n" +
+                "  `project` varchar(100) NOT NULL\n" +
                 ") ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_spanish_ci";
 
         Statement stmt = con.createStatement();
