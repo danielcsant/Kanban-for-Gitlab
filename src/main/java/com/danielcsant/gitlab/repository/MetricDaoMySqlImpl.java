@@ -1,17 +1,18 @@
 package com.danielcsant.gitlab.repository;
 
 import com.danielcsant.gitlab.model.Metric;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
-import java.util.logging.Logger;
 
 public class MetricDaoMySqlImpl implements IMetricDao {
 
-    private final static Logger LOGGER = Logger.getLogger("com.danielcsant.gitlab.repository.MetricDaoMySqlImpl");
+    private final static Logger LOGGER = LoggerFactory.getLogger(MetricDaoMySqlImpl.class);
 
     @Override
     public boolean insert(String tableName, List<Metric> metrics) {
@@ -52,7 +53,7 @@ public class MetricDaoMySqlImpl implements IMetricDao {
             stm.close();
             con.close();
         } catch (SQLException e) {
-            LOGGER.severe(e.getMessage());
+            LOGGER.error(e.getMessage());
             e.printStackTrace();
         }
         return insert;
@@ -100,7 +101,7 @@ public class MetricDaoMySqlImpl implements IMetricDao {
             stm.close();
             con.close();
         } catch (SQLException e) {
-            LOGGER.severe(e.getMessage());
+            LOGGER.error(e.getMessage());
             e.printStackTrace();
         }
         return insert;

@@ -6,18 +6,16 @@ import com.danielcsant.gitlab.repository.IMetricDao;
 import com.danielcsant.gitlab.repository.MetricDaoMySqlImpl;
 import com.danielcsant.gitlab.service.*;
 import org.gitlab4j.api.models.Issue;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.security.GeneralSecurityException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Logger;
 
 public class App {
 
-    private final static Logger LOGGER = Logger.getLogger("com.danielcsant.gitlab.App");
+    private final static Logger LOGGER = LoggerFactory.getLogger("com.danielcsant.gitlab.App");
 
     private static SheetsService sheetsService;
 
@@ -29,6 +27,7 @@ public class App {
     private static String projectName;
 
     public static void main(String[] args) throws Exception {
+        LOGGER.info("Loading configuration");
         Properties prop = new Properties();
         try (InputStream input = App.class.getClassLoader().getResourceAsStream("app.properties")) {
             // load a properties file
@@ -37,6 +36,7 @@ public class App {
             throw new Exception("Configure app.properties file");
         }
 
+        LOGGER.info("Initializing services");
         String personalAccessToken = prop.getProperty("personalAccessToken");
         String hostUrl = prop.getProperty("hostUrl");
         String columnNames[] = {"Open","To Do","Doing","Desplegado en Test","Despliegue Pendiente","Desplegado","Closed"};
@@ -55,24 +55,23 @@ public class App {
             projectName = projectData[0];
             int closedAtStart = Integer.parseInt(projectData[1]);
 
+            LOGGER.info("Retrieving data from project: " + projectName);
             HashMap<String, List<Issue>> columns = gitlabService.getColumnsMap(projectName, columnNames);
-
-//            // Remove when MYSQL migration is done. Now writing in excel just for first project...
-//            if (i == 0) {
-//                // Writing in excel
-//                generateCFDmetrics(columnNames, closedAtStart, columns);
-//                generateBugsMetrics(columns);
-//                generateNewTaskMetrics(columns);
-//                generateTestCoverageMetrics();
-//            }
-
-            // Writing in MySQL
             Metric newMetric = generateTodayMetrics(columnNames, columns, closedAtStart);
+            LOGGER.info("Retrieved");
+
             metrics.add(newMetric);
         }
 
+        LOGGER.info("Inserting metrics for " + metrics.size() + " projects");
         IMetricDao iMetricDao = new MetricDaoMySqlImpl();
-        iMetricDao.insert("project", metrics);
+//        boolean inserted = iMetricDao.insert("project", metrics);
+//        if (inserted){
+//            LOGGER.info("Inserted");
+//        } else {
+//            LOGGER.warning("No metrics inserted");
+//        }
+
     }
 
     private static Metric generateTodayMetrics(String[] columnNames, HashMap<String, List<Issue>> columns, int closedAtStart) throws Exception {
@@ -115,100 +114,6 @@ public class App {
                 );
 
         return newMetric;
-    }
-
-    private static void generateTestCoverageMetrics() throws Exception {
-        TestCoverage testCoverage = testCoverageMetricsService.getTestCoverageLastWorkingDay(projectName);
-
-        if (testCoverage != null) {
-            List<List<Object>> newRows = new ArrayList<>();
-
-            ArrayList newTaskRow = new ArrayList();
-            newTaskRow.add(getFormattedDate(new Date()));
-            newTaskRow.add(Double.parseDouble(testCoverage.getCoverage()));
-            newRows.add(newTaskRow);
-
-            sheetsService.persistNewRow("Coverage", newRows);
-        }
-    }
-
-    private static void generateNewTaskMetrics(HashMap<String, List<Issue>> columns) throws Exception {
-        List<Issue> tasksCreatedYesterday = newTasksMetricsService.getTasksCreatedYesterday(columns);
-
-        StringBuffer urls = new StringBuffer();
-        for (Issue issue : tasksCreatedYesterday) {
-            if (urls.length() != 0){
-                urls.append("\n");
-            }
-            urls.append(issue.getWebUrl());
-        }
-
-        Date date = Calendar.getInstance().getTime();
-        String today = getFormattedDate(date);
-
-        ArrayList newTaskRow = new ArrayList();
-        newTaskRow.add(today);
-        newTaskRow.add(tasksCreatedYesterday.size());
-        newTaskRow.add(urls.toString());
-        List<List<Object>> newRows = new ArrayList<>();
-        newRows.add(newTaskRow);
-
-        sheetsService.persistNewRow("New tasks", newRows);
-    }
-
-    private static void generateBugsMetrics(HashMap<String, List<Issue>> columns) throws Exception {
-
-        List<Issue> bugsCreatedYesterday = expeditesMetricsService.getExpeditesCreatedLastWorkingDay(projectName, columns);
-
-        StringBuffer urls = new StringBuffer();
-        for (Issue issue : bugsCreatedYesterday) {
-            if (urls.length() != 0){
-                urls.append("\n");
-            }
-            urls.append(issue.getWebUrl());
-        }
-
-        Date date = Calendar.getInstance().getTime();
-        String today = getFormattedDate(date);
-
-        ArrayList bugRow = new ArrayList();
-        bugRow.add(today);
-        bugRow.add(bugsCreatedYesterday.size());
-        bugRow.add(urls.toString());
-        List<List<Object>> newRows = new ArrayList<>();
-        newRows.add(bugRow);
-
-        sheetsService.persistNewRow("Bugs", newRows);
-    }
-
-    private static void generateCFDmetrics(String[] columnNames,
-                                                    int closedAtStart,
-                                                    HashMap<String,List<Issue>> columns) throws GeneralSecurityException, IOException {
-
-        Date date = Calendar.getInstance().getTime();
-        String today = getFormattedDate(date);
-
-        ArrayList cfdRow = new ArrayList();
-        cfdRow.add(today);
-        for (int i = 0; i < columnNames.length; i++) {
-            String columnName = columnNames[i];
-            int columnSize = columns.get(columnName).size();
-            if (columnName.equalsIgnoreCase("closed")){
-                cfdRow.add(columnSize - closedAtStart);
-            } else {
-                cfdRow.add(columnSize);
-            }
-        }
-        cfdRow.add(columns.get("Reopened").size());
-
-        List<List<Object>> newRow = new ArrayList<>();
-        newRow.add(cfdRow);
-//        sheetsService.persistNewRow("CFD", newRow);
-    }
-
-    private static String getFormattedDate(Date date) {
-        DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-        return formatter.format(date);
     }
 
 }

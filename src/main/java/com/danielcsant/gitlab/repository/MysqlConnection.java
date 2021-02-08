@@ -1,6 +1,8 @@
 package com.danielcsant.gitlab.repository;
 
 import com.danielcsant.gitlab.App;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,11 +10,10 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 public class MysqlConnection {
 
-    private final static Logger LOGGER = Logger.getLogger("com.danielcsant.gitlab.repository.MysqlConnection");
+    private final static Logger LOGGER = LoggerFactory.getLogger(MysqlConnection.class);
 
     public static Connection connect() {
 
@@ -22,7 +23,7 @@ public class MysqlConnection {
         try {
             prop.load(is);
         } catch (IOException e) {
-            LOGGER.severe(e.getMessage());
+            LOGGER.error(e.getMessage());
             return null;
         }
 
