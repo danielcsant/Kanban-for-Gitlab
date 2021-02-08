@@ -22,7 +22,7 @@ public class App {
     private static SheetsService sheetsService;
 
     private static CFDMetricsService gitlabService;
-    private static BugsMetricsService bugsMetricsService;
+    private static ExpeditesMetricsService expeditesMetricsService;
     private static NewTasksMetricsService newTasksMetricsService;
     private static TestCoverageMetricsService testCoverageMetricsService;
 
@@ -44,11 +44,12 @@ public class App {
 
         sheetsService = new SheetsService(sheetId);
         gitlabService = new CFDMetricsService(hostUrl, personalAccessToken);
-        bugsMetricsService = new BugsMetricsService(hostUrl, personalAccessToken);
+        expeditesMetricsService = new ExpeditesMetricsService(hostUrl, personalAccessToken);
         newTasksMetricsService = new NewTasksMetricsService(hostUrl, personalAccessToken);
         testCoverageMetricsService = new TestCoverageMetricsService(hostUrl, personalAccessToken);
 
         String [] projects = prop.getProperty("projects").split(",");
+        ArrayList metrics = new ArrayList();
         for (int i = 0; i < projects.length; i++) {
             String [] projectData = projects[i].split(":");
             projectName = projectData[0];
@@ -56,22 +57,25 @@ public class App {
 
             HashMap<String, List<Issue>> columns = gitlabService.getColumnsMap(projectName, columnNames);
 
-            // Remove when MYSQL migration is done. Now writing in excel just for first project...
-            if (i == 0) {
-                // Writing in excel
-                generateCFDmetrics(columnNames, closedAtStart, columns);
-                generateBugsMetrics(columns);
-                generateNewTaskMetrics(columns);
-                generateTestCoverageMetrics();
-            }
+//            // Remove when MYSQL migration is done. Now writing in excel just for first project...
+//            if (i == 0) {
+//                // Writing in excel
+//                generateCFDmetrics(columnNames, closedAtStart, columns);
+//                generateBugsMetrics(columns);
+//                generateNewTaskMetrics(columns);
+//                generateTestCoverageMetrics();
+//            }
 
             // Writing in MySQL
-            generateTodayMetrics(columnNames, columns, closedAtStart);
-
+            Metric newMetric = generateTodayMetrics(columnNames, columns, closedAtStart);
+            metrics.add(newMetric);
         }
+
+        IMetricDao iMetricDao = new MetricDaoMySqlImpl();
+        iMetricDao.insert("project", metrics);
     }
 
-    private static void generateTodayMetrics(String[] columnNames, HashMap<String, List<Issue>> columns, int closedAtStart) throws Exception {
+    private static Metric generateTodayMetrics(String[] columnNames, HashMap<String, List<Issue>> columns, int closedAtStart) throws Exception {
         Date today = Calendar.getInstance().getTime();
         java.sql.Date sqlDate = new java.sql.Date(today.getTime());
 
@@ -86,8 +90,8 @@ public class App {
             }
         }
 
-        List<Issue> bugsCreatedYesterday = bugsMetricsService.getBugsCreatedLastWorkingDay(projectName, columns);
-        columnMap.put("New bugs", bugsCreatedYesterday.size());
+        List<Issue> bugsCreatedYesterday = expeditesMetricsService.getExpeditesCreatedLastWorkingDay(projectName, columns);
+        columnMap.put("Expedites", bugsCreatedYesterday.size());
 
         List<Issue> tasksCreatedYesterday = newTasksMetricsService.getTasksCreatedYesterday(columns);
         columnMap.put("New tasks", tasksCreatedYesterday.size());
@@ -104,14 +108,13 @@ public class App {
                 columnMap.get("Despliegue Pendiente"),
                 columnMap.get("Desplegado"),
                 columnMap.get("Closed"),
-                columnMap.get("New bugs"),
+                columnMap.get("Expedites"),
                 columnMap.get("Coverage"),
                 columnMap.get("New tasks"),
                 projectName
                 );
 
-        IMetricDao iMetricDao = new MetricDaoMySqlImpl();
-        iMetricDao.insert("project", newMetric);
+        return newMetric;
     }
 
     private static void generateTestCoverageMetrics() throws Exception {
@@ -155,7 +158,7 @@ public class App {
 
     private static void generateBugsMetrics(HashMap<String, List<Issue>> columns) throws Exception {
 
-        List<Issue> bugsCreatedYesterday = bugsMetricsService.getBugsCreatedLastWorkingDay(projectName, columns);
+        List<Issue> bugsCreatedYesterday = expeditesMetricsService.getExpeditesCreatedLastWorkingDay(projectName, columns);
 
         StringBuffer urls = new StringBuffer();
         for (Issue issue : bugsCreatedYesterday) {

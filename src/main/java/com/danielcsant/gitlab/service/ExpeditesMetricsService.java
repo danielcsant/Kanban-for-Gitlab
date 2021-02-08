@@ -3,24 +3,23 @@ package com.danielcsant.gitlab.service;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.Issue;
 import org.gitlab4j.api.models.LabelEvent;
-import org.gitlab4j.api.models.Project;
 
 import java.text.ParseException;
 import java.util.*;
 
-public class BugsMetricsService extends GitlabService{
+public class ExpeditesMetricsService extends GitlabService{
 
-    final String BUG_LABEL = "Bug";
+    final String EXPEDITE_LABEL = "Expedite";
 
-    public BugsMetricsService(String hostUrl, String personalAccessToken) throws GitLabApiException {
+    public ExpeditesMetricsService(String hostUrl, String personalAccessToken) throws GitLabApiException {
         super(hostUrl, personalAccessToken);
     }
 
-    public List<Issue> getBugsCreatedLastWorkingDay(String pathWithNamespace, HashMap<String, List<Issue>> columns) throws Exception {
+    public List<Issue> getExpeditesCreatedLastWorkingDay(String pathWithNamespace, HashMap<String, List<Issue>> columns) throws Exception {
         List<Issue> result = new ArrayList<>();
         for (List<Issue> valuesColumn : columns.values()) {
             for (Issue issue : valuesColumn) {
-                if (isBug(issue) && wasCreatedInLastLaborDay(pathWithNamespace, issue)){
+                if (isExpedite(issue) && wasCreatedInLastLaborDay(pathWithNamespace, issue)){
                     result.add(issue);
                 }
             }
@@ -37,7 +36,7 @@ public class BugsMetricsService extends GitlabService{
         Date createdAsBug = null;
         for (LabelEvent labelEvent : labelEvents) {
             if (labelEvent.getLabel() != null &&
-                    labelEvent.getLabel().getName().equals(BUG_LABEL) &&
+                    labelEvent.getLabel().getName().equals(EXPEDITE_LABEL) &&
                     labelEvent.getAction().equals("add")){
                 createdAsBug = getDate(labelEvent.getCreatedAt());
                 break;
@@ -57,8 +56,8 @@ public class BugsMetricsService extends GitlabService{
         return asBugStringDay.equals(previousWorkingDayDay);
     }
 
-    private boolean isBug(Issue issue) {
-        return issue.getLabels() != null && issue.getLabels().contains(BUG_LABEL);
+    private boolean isExpedite(Issue issue) {
+        return issue.getLabels() != null && issue.getLabels().contains(EXPEDITE_LABEL);
     }
 
 
