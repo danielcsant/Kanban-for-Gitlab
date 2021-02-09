@@ -35,15 +35,10 @@ public abstract class GitlabService {
         return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").parse(date);
     }
 
-    protected Date getPreviousWorkingDay() {
+    protected Date getYesterdayDate() {
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
-
-        int dayOfWeek;
-        do {
-            cal.add(Calendar.DAY_OF_MONTH, -1);
-            dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-        } while (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY);
+        cal.add(Calendar.DAY_OF_MONTH, -1);
 
         return cal.getTime();
     }

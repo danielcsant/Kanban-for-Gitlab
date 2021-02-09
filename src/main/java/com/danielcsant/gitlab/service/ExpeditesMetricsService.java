@@ -15,11 +15,11 @@ public class ExpeditesMetricsService extends GitlabService{
         super(hostUrl, personalAccessToken);
     }
 
-    public List<Issue> getExpeditesCreatedLastWorkingDay(String pathWithNamespace, HashMap<String, List<Issue>> columns) throws Exception {
+    public List<Issue> getExpeditesCreatedYesterday(String pathWithNamespace, HashMap<String, List<Issue>> columns) throws Exception {
         List<Issue> result = new ArrayList<>();
         for (List<Issue> valuesColumn : columns.values()) {
             for (Issue issue : valuesColumn) {
-                if (isExpedite(issue) && wasCreatedInLastLaborDay(pathWithNamespace, issue)){
+                if (isExpedite(issue) && wasCreatedYesterday(pathWithNamespace, issue)){
                     result.add(issue);
                 }
             }
@@ -28,32 +28,32 @@ public class ExpeditesMetricsService extends GitlabService{
         return result;
     }
 
-    private boolean wasCreatedInLastLaborDay(String pathWithNamespace, Issue issue) throws GitLabApiException, ParseException {
+    private boolean wasCreatedYesterday(String pathWithNamespace, Issue issue) throws GitLabApiException, ParseException {
         List<LabelEvent> labelEvents = gitLabApi
                 .getResourceLabelEventsApi()
                 .getIssueLabelEvents(pathWithNamespace, issue.getIid());
 
-        Date createdAsBug = null;
+        Date createdAsExpedite = null;
         for (LabelEvent labelEvent : labelEvents) {
             if (labelEvent.getLabel() != null &&
                     labelEvent.getLabel().getName().equals(EXPEDITE_LABEL) &&
                     labelEvent.getAction().equals("add")){
-                createdAsBug = getDate(labelEvent.getCreatedAt());
+                createdAsExpedite = getDate(labelEvent.getCreatedAt());
                 break;
             }
         }
 
-        return createdAsBug != null && areSameDay(createdAsBug, getPreviousWorkingDay());
+        return createdAsExpedite != null && areSameDay(createdAsExpedite, getYesterdayDate());
     }
 
-    private boolean areSameDay(Date asBug, Date previousWorkingDay) {
-        String asBugString = asBug.toString();
-        String asBugStringDay = asBugString.substring(0, 10);
+    private boolean areSameDay(Date asExpedite, Date previousWorkingDay) {
+        String asExpediteString = asExpedite.toString();
+        String asExpediteStringDay = asExpediteString.substring(0, 10);
 
         String previousWorkingDayString = previousWorkingDay.toString();
         String previousWorkingDayDay = previousWorkingDayString.substring(0, 10);
 
-        return asBugStringDay.equals(previousWorkingDayDay);
+        return asExpediteStringDay.equals(previousWorkingDayDay);
     }
 
     private boolean isExpedite(Issue issue) {

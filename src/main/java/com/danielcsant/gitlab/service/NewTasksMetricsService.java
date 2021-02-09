@@ -17,7 +17,7 @@ public class NewTasksMetricsService extends GitlabService{
         List<Issue> result = new ArrayList<>();
         for (List<Issue> valuesColumn : columns.values()) {
             for (Issue issue : valuesColumn) {
-                if (wasCreatedInLastLaborDay(issue)){
+                if (wasCreatedYesterday(issue)){
                     result.add(issue);
                 }
             }
@@ -26,15 +26,15 @@ public class NewTasksMetricsService extends GitlabService{
         return result;
     }
 
-    private boolean wasCreatedInLastLaborDay(Issue issue) {
+    private boolean wasCreatedYesterday(Issue issue) {
         String createdDateString = issue.getCreatedAt().toString();
         String createdDateDay = createdDateString.substring(0, 10);
 
-        Date previousWorkingDay = getPreviousWorkingDay();
-        String previousWorkingDayString = previousWorkingDay.toString();
-        String previousWorkingDayDay = previousWorkingDayString.substring(0, 10);
+        Date yesterdayDate = getYesterdayDate();
+        String yesterdayDayString = yesterdayDate.toString();
+        String yesterdayDayDay = yesterdayDayString.substring(0, 10);
 
-        return createdDateDay.equals(previousWorkingDayDay);
+        return createdDateDay.equals(yesterdayDayDay);
     }
 
     public List<IssuesInDate> getCreatedIssues(HashMap<String, List<Issue>> columns) {

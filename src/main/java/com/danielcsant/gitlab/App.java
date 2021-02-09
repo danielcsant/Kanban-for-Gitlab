@@ -89,13 +89,13 @@ public class App {
             }
         }
 
-        List<Issue> bugsCreatedYesterday = expeditesMetricsService.getExpeditesCreatedLastWorkingDay(projectName, columns);
+        List<Issue> bugsCreatedYesterday = expeditesMetricsService.getExpeditesCreatedYesterday(projectName, columns);
         columnMap.put("Expedites", bugsCreatedYesterday.size());
 
         List<Issue> tasksCreatedYesterday = newTasksMetricsService.getTasksCreatedYesterday(columns);
         columnMap.put("New tasks", tasksCreatedYesterday.size());
 
-        TestCoverage testCoverage = testCoverageMetricsService.getTestCoverageLastWorkingDay(projectName);
+        TestCoverage testCoverage = testCoverageMetricsService.getTestCoverage(projectName);
         columnMap.put("Coverage", (int) Double.parseDouble(testCoverage.getCoverage()));
 
         Metric newMetric = new Metric(

@@ -53,7 +53,7 @@ public class TestCoverageMetricsService extends GitlabService{
         return result;
     }
 
-    public TestCoverage getTestCoverageLastWorkingDay(String pathWithNamespace) throws Exception {
+    public TestCoverage getTestCoverage(String pathWithNamespace) throws Exception {
 
         TestCoverage testCoverage = null;
         PipelineFilter pipelineFilter = new PipelineFilter();
@@ -84,17 +84,6 @@ public class TestCoverageMetricsService extends GitlabService{
         }
 
         return testCoverage;
-    }
-
-    private boolean wasUpdatedInLastLaborDay(Date pipelineDate) {
-        String updatedDateString = pipelineDate.toString();
-        String updatedDateDay = updatedDateString.substring(0, 10);
-
-        Date previousWorkingDay = getPreviousWorkingDay();
-        String previousWorkingDayString = previousWorkingDay.toString();
-        String previousWorkingDayDay = previousWorkingDayString.substring(0, 10);
-
-        return updatedDateDay.equals(previousWorkingDayDay);
     }
 
     private static String getFormattedDate(Date date) {
