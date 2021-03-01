@@ -44,4 +44,8 @@ public abstract class GitlabService {
 
         return cal.getTime();
     }
+
+    protected String getProjectName(Integer projectId) throws GitLabApiException {
+        return gitLabApi.getProjectApi().getProject(projectId).getName();
+    }
 }

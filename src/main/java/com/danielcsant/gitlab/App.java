@@ -1,5 +1,6 @@
 package com.danielcsant.gitlab;
 
+import com.danielcsant.gitlab.model.ExpediteMetric;
 import com.danielcsant.gitlab.model.ProjectMetric;
 import com.danielcsant.gitlab.model.TeamMetric;
 import com.danielcsant.gitlab.model.TestCoverage;
@@ -8,6 +9,7 @@ import com.danielcsant.gitlab.repository.ITeamDao;
 import com.danielcsant.gitlab.repository.ProjectDaoMySqlImpl;
 import com.danielcsant.gitlab.repository.TeamDaoMySqlImpl;
 import com.danielcsant.gitlab.service.*;
+import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.Issue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +53,12 @@ public class App {
 
         generateProjectMetrics(prop, columnNames, iProjectDao);
         generateTeamMetrics(prop, columnNames);
+        generateExpediteMetrics(prop);
+    }
+
+    private static void generateExpediteMetrics(Properties prop) throws GitLabApiException {
+        String [] teams = prop.getProperty("teams").split(",");
+        expeditesMetricsService.persistYesterdayExpedites(teams);
     }
 
     private static void generateTeamMetrics(Properties prop, String[] columnNames) throws Exception {

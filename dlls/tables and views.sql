@@ -34,3 +34,11 @@ CREATE TABLE `team` (
   `new_expedites` int(11) DEFAULT NULL,
   `team` varchar(100) COLLATE latin1_spanish_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_spanish_ci
+
+CREATE TABLE `expedite` (
+  `metric_date` date NOT NULL,
+  `project` varchar(100) COLLATE latin1_spanish_ci DEFAULT NULL,
+  `team` varchar(100) COLLATE latin1_spanish_ci DEFAULT NULL,
+  `title` varchar(200) COLLATE latin1_spanish_ci DEFAULT NULL,
+  `url` varchar(200) COLLATE latin1_spanish_ci DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_spanish_ci
