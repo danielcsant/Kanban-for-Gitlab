@@ -3,7 +3,7 @@ package com.danielcsant.gitlab.model;
 
 import java.sql.Date;
 
-public class Metric {
+public class ProjectMetric {
 
     private Date metricDate;
 
@@ -28,7 +28,7 @@ public class Metric {
     private String project;
 
 
-    public Metric(Date metricDate, int open, int toDo, int doing, int desplegadoEnTest, int desplieguePendiente, int desplegado, int closed, int newBugs, int masterCoverage, int newTasks, String project) {
+    public ProjectMetric(Date metricDate, int open, int toDo, int doing, int desplegadoEnTest, int desplieguePendiente, int desplegado, int closed, int newBugs, int masterCoverage, int newTasks, String project) {
         this.metricDate = metricDate;
         this.open = open;
         this.toDo = toDo;

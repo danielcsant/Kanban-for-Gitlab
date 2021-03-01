@@ -14,6 +14,8 @@ import java.util.List;
 
 public abstract class GitlabService {
 
+    final String EXPEDITE_LABEL = "Expedite";
+
     GitLabApi gitLabApi = null;
     List<Project> projects = null;
 

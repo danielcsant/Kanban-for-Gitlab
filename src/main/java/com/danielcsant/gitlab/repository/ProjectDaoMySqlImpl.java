@@ -1,6 +1,6 @@
 package com.danielcsant.gitlab.repository;
 
-import com.danielcsant.gitlab.model.Metric;
+import com.danielcsant.gitlab.model.ProjectMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,12 +10,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 
-public class MetricDaoMySqlImpl implements IMetricDao {
+public class ProjectDaoMySqlImpl implements IProjectDao {
 
-    private final static Logger LOGGER = LoggerFactory.getLogger(MetricDaoMySqlImpl.class);
+    private final static Logger LOGGER = LoggerFactory.getLogger(ProjectDaoMySqlImpl.class);
 
     @Override
-    public boolean insert(String tableName, List<Metric> metrics) {
+    public boolean insert(String tableName, List<ProjectMetric> projectMetrics) {
         boolean insert = false;
 
         PreparedStatement stm= null;
@@ -26,24 +26,24 @@ public class MetricDaoMySqlImpl implements IMetricDao {
             createTable(formatTableName(tableName), con);
             stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?,?)");
             int i = 0;
-            for (Metric newMetric : metrics) {
-                stm.setDate(1, newMetric.getMetricDate());
-                stm.setInt(2, newMetric.getOpen());
-                stm.setInt(3, newMetric.getToDo());
-                stm.setInt(4, newMetric.getDoing());
-                stm.setInt(5, newMetric.getDesplegadoEnTest());
-                stm.setInt(6, newMetric.getDesplieguePendiente());
-                stm.setInt(7, newMetric.getDesplegado());
-                stm.setInt(8, newMetric.getClosed());
-                stm.setInt(9, newMetric.getNewBugs());
-                stm.setInt(10, newMetric.getMasterCoverage());
-                stm.setInt(11, newMetric.getNewTasks());
-                stm.setString(12, newMetric.getProject());
+            for (ProjectMetric newProjectMetric : projectMetrics) {
+                stm.setDate(1, newProjectMetric.getMetricDate());
+                stm.setInt(2, newProjectMetric.getOpen());
+                stm.setInt(3, newProjectMetric.getToDo());
+                stm.setInt(4, newProjectMetric.getDoing());
+                stm.setInt(5, newProjectMetric.getDesplegadoEnTest());
+                stm.setInt(6, newProjectMetric.getDesplieguePendiente());
+                stm.setInt(7, newProjectMetric.getDesplegado());
+                stm.setInt(8, newProjectMetric.getClosed());
+                stm.setInt(9, newProjectMetric.getNewBugs());
+                stm.setInt(10, newProjectMetric.getMasterCoverage());
+                stm.setInt(11, newProjectMetric.getNewTasks());
+                stm.setString(12, newProjectMetric.getProject());
 
                 stm.addBatch();
                 i++;
 
-                if (i % 1000 == 0 || i == metrics.size()) {
+                if (i % 1000 == 0 || i == projectMetrics.size()) {
                     stm.executeBatch(); // Execute every 1000 items.
                 }
 
@@ -71,7 +71,7 @@ public class MetricDaoMySqlImpl implements IMetricDao {
     }
 
     @Override
-    public boolean insert(String tableName, Metric metric) {
+    public boolean insert(String tableName, ProjectMetric projectMetric) {
         boolean insert = false;
 
         PreparedStatement stm= null;
@@ -82,18 +82,18 @@ public class MetricDaoMySqlImpl implements IMetricDao {
             createTable(formatTableName(tableName), con);
 
             stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?,?)");
-            stm.setDate(1, metric.getMetricDate());
-            stm.setInt(2, metric.getOpen());
-            stm.setInt(3, metric.getToDo());
-            stm.setInt(4, metric.getDoing());
-            stm.setInt(5, metric.getDesplegadoEnTest());
-            stm.setInt(6, metric.getDesplieguePendiente());
-            stm.setInt(7, metric.getDesplegado());
-            stm.setInt(8, metric.getClosed());
-            stm.setInt(9, metric.getNewBugs());
-            stm.setInt(10, metric.getMasterCoverage());
-            stm.setInt(11, metric.getNewTasks());
-            stm.setString(12, metric.getProject());
+            stm.setDate(1, projectMetric.getMetricDate());
+            stm.setInt(2, projectMetric.getOpen());
+            stm.setInt(3, projectMetric.getToDo());
+            stm.setInt(4, projectMetric.getDoing());
+            stm.setInt(5, projectMetric.getDesplegadoEnTest());
+            stm.setInt(6, projectMetric.getDesplieguePendiente());
+            stm.setInt(7, projectMetric.getDesplegado());
+            stm.setInt(8, projectMetric.getClosed());
+            stm.setInt(9, projectMetric.getNewBugs());
+            stm.setInt(10, projectMetric.getMasterCoverage());
+            stm.setInt(11, projectMetric.getNewTasks());
+            stm.setString(12, projectMetric.getProject());
 
             int i = stm.executeUpdate();
             LOGGER.info(i+" records inserted");

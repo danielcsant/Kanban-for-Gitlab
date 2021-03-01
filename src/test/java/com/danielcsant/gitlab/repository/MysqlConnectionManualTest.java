@@ -1,6 +1,6 @@
 package com.danielcsant.gitlab.repository;
 
-import com.danielcsant.gitlab.model.Metric;
+import com.danielcsant.gitlab.model.ProjectMetric;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -14,11 +14,11 @@ public class MysqlConnectionManualTest {
 
     @Test
     public void insertMetricTest() throws Exception {
-        IMetricDao iMetricDao = new MetricDaoMySqlImpl();
+        IProjectDao iProjectDao = new ProjectDaoMySqlImpl();
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         Date myDate = formatter.parse("2020-12-1");
         java.sql.Date sqlDate = new java.sql.Date(myDate.getTime());
-        Metric newMetric = new Metric(
+        ProjectMetric newProjectMetric = new ProjectMetric(
                 sqlDate,
                 1,
                 2,
@@ -33,18 +33,18 @@ public class MysqlConnectionManualTest {
                 "project foo"
         );
 
-        boolean result = iMetricDao.insert("project", newMetric);
+        boolean result = iProjectDao.insert("project", newProjectMetric);
 
         Assert.assertTrue(result);
     }
 
     @Test
     public void validateTableNameTest() throws Exception {
-        IMetricDao iMetricDao = new MetricDaoMySqlImpl();
+        IProjectDao iProjectDao = new ProjectDaoMySqlImpl();
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         Date myDate = formatter.parse("2020-12-1");
         java.sql.Date sqlDate = new java.sql.Date(myDate.getTime());
-        Metric newMetric = new Metric(
+        ProjectMetric newProjectMetric = new ProjectMetric(
                 sqlDate,
                 1,
                 2,
@@ -59,20 +59,20 @@ public class MysqlConnectionManualTest {
                 "project foo"
         );
 
-        boolean result = iMetricDao.insert("project", newMetric);
+        boolean result = iProjectDao.insert("project", newProjectMetric);
 
         Assert.assertTrue(result);
     }
 
     @Test
     public void bulkInsertMetricTest() throws Exception {
-        IMetricDao iMetricDao = new MetricDaoMySqlImpl();
+        IProjectDao iProjectDao = new ProjectDaoMySqlImpl();
         DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
         List metricList = new ArrayList();
         for (int i = 0; i < 10; i++) {
             Date myDate = formatter.parse("2020-12-" + i);
             java.sql.Date sqlDate = new java.sql.Date(myDate.getTime());
-            Metric newMetric = new Metric(
+            ProjectMetric newProjectMetric = new ProjectMetric(
                     sqlDate,
                     1,
                     2,
@@ -86,11 +86,11 @@ public class MysqlConnectionManualTest {
                     10,
                     "project foo"
             );
-            metricList.add(newMetric);
+            metricList.add(newProjectMetric);
         }
 
 
-        boolean result = iMetricDao.insert("project", metricList);
+        boolean result = iProjectDao.insert("project", metricList);
 
         Assert.assertTrue(result);
     }
