@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface IExpediteDao {
 
-    public boolean insert(String tableName, List<ExpediteMetric> expediteMetrics);
-    public boolean insert(String tableName, ExpediteMetric expediteMetric);
+    public boolean upsert(String tableName, List<ExpediteMetric> expediteMetrics);
+    public boolean upsert(String tableName, ExpediteMetric expediteMetric);
 
 }

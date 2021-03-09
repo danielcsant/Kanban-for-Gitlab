@@ -7,11 +7,9 @@ import org.gitlab4j.api.Constants;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.Issue;
 import org.gitlab4j.api.models.IssueFilter;
-import org.gitlab4j.api.models.LabelEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,7 +47,7 @@ public class InitializeExpeditesMetricsService extends GitlabService{
                         ExpediteMetric expediteMetric = new ExpediteMetric(
                                 expediteDate,
                                 projectName,
-                                intersection.iterator().next(),
+                                issue.getIid(), intersection.iterator().next(),
                                 issue.getTitle(),
                                 issue.getWebUrl()
                         );
@@ -62,7 +60,7 @@ public class InitializeExpeditesMetricsService extends GitlabService{
 
         IExpediteDao expediteDao = new ExpediteDaoMySqlImpl();
         LOGGER.info("Inserting expedites");
-        boolean inserted = expediteDao.insert("expedite", expedites);
+        boolean inserted = expediteDao.upsert("expedite", expedites);
         if (inserted){
             LOGGER.info("Inserted");
         } else {

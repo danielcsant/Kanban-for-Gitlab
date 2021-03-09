@@ -10,11 +10,7 @@ import org.gitlab4j.api.models.LabelEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -98,17 +94,8 @@ public class ExpeditesMetricsService extends GitlabService{
         return result;
     }
 
-    public void persistYesterdayExpedites(String[] teams) throws GitLabApiException {
+    public void persistExpedites(String[] teams) throws GitLabApiException {
 
-        Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DATE, -1);
-        cal.set(Calendar.HOUR, 0);
-        cal.set(Calendar.MINUTE, 1);
-
-        IssueFilter issueFilterCreatedYesterday = new IssueFilter();
-        issueFilterCreatedYesterday.setCreatedAfter(cal.getTime());
-
-        List<Issue> issues = gitLabApi.getIssuesApi().getIssues(issueFilterCreatedYesterday);
 
         ArrayList<String> teamNames = new ArrayList();
         for (int i = 0; i < teams.length; i++) {
@@ -117,7 +104,7 @@ public class ExpeditesMetricsService extends GitlabService{
         }
 
         ArrayList expedites = new ArrayList();
-        for (Issue issue : issues) {
+        for (Issue issue : getAllIssues()) {
             if (issue.getLabels() != null && issue.getLabels().size() > 0){
                 if (issue.getLabels().contains(EXPEDITE_LABEL)) {
                     Set<String> intersection = teamNames.stream()
@@ -131,6 +118,7 @@ public class ExpeditesMetricsService extends GitlabService{
                         ExpediteMetric expediteMetric = new ExpediteMetric(
                                 expediteDate,
                                 projectName,
+                                issue.getIid(),
                                 intersection.iterator().next(),
                                 issue.getTitle(),
                                 issue.getWebUrl()
@@ -144,7 +132,7 @@ public class ExpeditesMetricsService extends GitlabService{
 
         IExpediteDao expediteDao = new ExpediteDaoMySqlImpl();
         LOGGER.info("Inserting expedites");
-        boolean inserted = expediteDao.insert("expedite", expedites);
+        boolean inserted = expediteDao.upsert("expedite", expedites);
         if (inserted){
             LOGGER.info("Inserted");
         } else {

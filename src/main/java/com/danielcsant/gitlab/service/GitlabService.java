@@ -1,8 +1,10 @@
 package com.danielcsant.gitlab.service;
 
+import org.gitlab4j.api.Constants;
 import org.gitlab4j.api.GitLabApi;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.Issue;
+import org.gitlab4j.api.models.IssueFilter;
 import org.gitlab4j.api.models.Project;
 
 import java.text.ParseException;
@@ -18,6 +20,7 @@ public abstract class GitlabService {
 
     GitLabApi gitLabApi = null;
     List<Project> projects = null;
+    private static List<Issue> allIssues;
 
     public GitlabService(String hostUrl, String personalAccessToken) throws GitLabApiException {
         // Create a GitLabApi instance to communicate with your GitLab server
@@ -47,5 +50,14 @@ public abstract class GitlabService {
 
     protected String getProjectName(Integer projectId) throws GitLabApiException {
         return gitLabApi.getProjectApi().getProject(projectId).getName();
+    }
+
+    protected List<Issue> getAllIssues() throws GitLabApiException {
+        if (allIssues == null) {
+            IssueFilter issueFilterOpen = new IssueFilter();
+            issueFilterOpen.setScope(Constants.IssueScope.ALL);
+            allIssues = gitLabApi.getIssuesApi().getIssues(issueFilterOpen);
+        }
+        return allIssues;
     }
 }

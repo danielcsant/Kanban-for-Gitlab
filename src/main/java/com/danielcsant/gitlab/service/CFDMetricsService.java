@@ -14,7 +14,6 @@ import java.util.List;
 public class CFDMetricsService extends GitlabService {
 
     private final static Logger LOGGER = LoggerFactory.getLogger(CFDMetricsService.class);
-    private List<Issue> allIssues;
 
     public CFDMetricsService(String hostUrl, String personalAccessToken) throws GitLabApiException {
         super(hostUrl, personalAccessToken);
@@ -109,13 +108,7 @@ public class CFDMetricsService extends GitlabService {
         List<Issue> reopenedIssues = new ArrayList<>();
         List<Issue> closedIssues = new ArrayList<>();
 
-        if (allIssues == null) {
-            IssueFilter issueFilterOpen = new IssueFilter();
-            issueFilterOpen.setScope(Constants.IssueScope.ALL);
-            allIssues = gitLabApi.getIssuesApi().getIssues(issueFilterOpen);
-        }
-
-        for (Issue issue : allIssues) {
+        for (Issue issue : getAllIssues()) {
             if (issue.getLabels().contains(teamName)){
                 switch (issue.getState()) {
                     case OPENED:

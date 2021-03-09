@@ -15,7 +15,7 @@ public class ExpediteDaoMySqlImpl implements IExpediteDao {
     private final static Logger LOGGER = LoggerFactory.getLogger(ExpediteDaoMySqlImpl.class);
 
     @Override
-    public boolean insert(String tableName, List<ExpediteMetric> teamMetrics) {
+    public boolean upsert(String tableName, List<ExpediteMetric> teamMetrics) {
         boolean insert = false;
 
         PreparedStatement stm= null;
@@ -23,14 +23,15 @@ public class ExpediteDaoMySqlImpl implements IExpediteDao {
 
         try {
             con = MysqlConnection.connect();
-            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?)");
+            stm = con.prepareStatement("insert ignore into " + formatTableName(tableName) + " values(?,?,?,?,?,?)");
             int i = 0;
             for (ExpediteMetric newExpediteMetric : teamMetrics) {
                 stm.setDate(1, newExpediteMetric.getMetricDate());
                 stm.setString(2, newExpediteMetric.getProject());
-                stm.setString(3, newExpediteMetric.getTeam());
-                stm.setString(4, newExpediteMetric.getTitle());
-                stm.setString(5, newExpediteMetric.getUrl());
+                stm.setInt(3, newExpediteMetric.getIid());
+                stm.setString(4, newExpediteMetric.getTeam());
+                stm.setString(5, newExpediteMetric.getTitle());
+                stm.setString(6, newExpediteMetric.getUrl());
 
                 stm.addBatch();
                 i++;
@@ -63,7 +64,7 @@ public class ExpediteDaoMySqlImpl implements IExpediteDao {
     }
 
     @Override
-    public boolean insert(String tableName, ExpediteMetric newExpediteMetric) {
+    public boolean upsert(String tableName, ExpediteMetric newExpediteMetric) {
         boolean insert = false;
 
         PreparedStatement stm= null;
@@ -72,12 +73,13 @@ public class ExpediteDaoMySqlImpl implements IExpediteDao {
         try {
             con = MysqlConnection.connect();
 
-            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?)");
+            stm = con.prepareStatement("insert ignore into " + formatTableName(tableName) + " values(?,?,?,?,?,?)");
             stm.setDate(1, newExpediteMetric.getMetricDate());
             stm.setString(2, newExpediteMetric.getProject());
-            stm.setString(3, newExpediteMetric.getTeam());
-            stm.setString(4, newExpediteMetric.getTitle());
-            stm.setString(5, newExpediteMetric.getUrl());
+            stm.setInt(3, newExpediteMetric.getIid());
+            stm.setString(4, newExpediteMetric.getTeam());
+            stm.setString(5, newExpediteMetric.getTitle());
+            stm.setString(6, newExpediteMetric.getUrl());
 
             int i = stm.executeUpdate();
             LOGGER.info(i+" records inserted");

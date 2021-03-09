@@ -1,6 +1,5 @@
 package com.danielcsant.gitlab;
 
-import com.danielcsant.gitlab.model.ExpediteMetric;
 import com.danielcsant.gitlab.model.ProjectMetric;
 import com.danielcsant.gitlab.model.TeamMetric;
 import com.danielcsant.gitlab.model.TestCoverage;
@@ -49,16 +48,15 @@ public class App {
         expeditesMetricsService = new ExpeditesMetricsService(hostUrl, personalAccessToken);
         newTasksMetricsService = new NewTasksMetricsService(hostUrl, personalAccessToken);
         testCoverageMetricsService = new TestCoverageMetricsService(hostUrl, personalAccessToken);
-        IProjectDao iProjectDao = new ProjectDaoMySqlImpl();
 
-        generateProjectMetrics(prop, columnNames, iProjectDao);
+        generateProjectMetrics(prop, columnNames);
         generateTeamMetrics(prop, columnNames);
         generateExpediteMetrics(prop);
     }
 
     private static void generateExpediteMetrics(Properties prop) throws GitLabApiException {
         String [] teams = prop.getProperty("teams").split(",");
-        expeditesMetricsService.persistYesterdayExpedites(teams);
+        expeditesMetricsService.persistExpedites(teams);
     }
 
     private static void generateTeamMetrics(Properties prop, String[] columnNames) throws Exception {
@@ -119,14 +117,13 @@ public class App {
                 columnMap.get("Despliegue Pendiente"),
                 columnMap.get("Desplegado"),
                 columnMap.get("Closed"),
-                columnMap.get("Expedites"),
                 teamName
         );
 
         return newTeamMetric;
     }
 
-    private static void generateProjectMetrics(Properties prop, String[] columnNames, IProjectDao iProjectDao) throws Exception {
+    private static void generateProjectMetrics(Properties prop, String[] columnNames) throws Exception {
         ArrayList metrics = new ArrayList();
         String [] projects = prop.getProperty("projects").split(",");
 
@@ -145,6 +142,7 @@ public class App {
 
         LOGGER.info("Inserting metrics for " + metrics.size() + " projects");
 
+        IProjectDao iProjectDao = new ProjectDaoMySqlImpl();
         boolean inserted = iProjectDao.insert("project", metrics);
         if (inserted){
             LOGGER.info("Inserted");

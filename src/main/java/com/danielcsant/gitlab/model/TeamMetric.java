@@ -18,13 +18,11 @@ public class TeamMetric {
     private int desplegado;
     private int closed;
 
-    // Bugs
-    private int newBugs;
 
     private String project;
 
 
-    public TeamMetric(Date metricDate, int open, int week1, int week2, int toDo, int doing, int desplegadoEnTest, int desplieguePendiente, int desplegado, int closed, int newBugs, String project) {
+    public TeamMetric(Date metricDate, int open, int week1, int week2, int toDo, int doing, int desplegadoEnTest, int desplieguePendiente, int desplegado, int closed, String project) {
         this.metricDate = metricDate;
         this.open = open;
         this.week1 = week1;
@@ -35,7 +33,6 @@ public class TeamMetric {
         this.desplieguePendiente = desplieguePendiente;
         this.desplegado = desplegado;
         this.closed = closed;
-        this.newBugs = newBugs;
         this.project = project;
     }
 
@@ -101,14 +98,6 @@ public class TeamMetric {
 
     public void setClosed(int closed) {
         this.closed = closed;
-    }
-
-    public int getNewBugs() {
-        return newBugs;
-    }
-
-    public void setNewBugs(int newBugs) {
-        this.newBugs = newBugs;
     }
 
     public String getProject() {

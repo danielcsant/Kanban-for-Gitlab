@@ -23,7 +23,7 @@ public class TeamDaoMySqlImpl implements ITeamDao {
 
         try {
             con = MysqlConnection.connect();
-            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?,?)");
+            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?)");
             int i = 0;
             for (TeamMetric newTeamMetric : teamMetrics) {
                 stm.setDate(1, newTeamMetric.getMetricDate());
@@ -36,8 +36,7 @@ public class TeamDaoMySqlImpl implements ITeamDao {
                 stm.setInt(8, newTeamMetric.getDesplieguePendiente());
                 stm.setInt(9, newTeamMetric.getDesplegado());
                 stm.setInt(10, newTeamMetric.getClosed());
-                stm.setInt(11, newTeamMetric.getNewBugs());
-                stm.setString(12, newTeamMetric.getProject());
+                stm.setString(11, newTeamMetric.getProject());
 
                 stm.addBatch();
                 i++;
@@ -79,7 +78,7 @@ public class TeamDaoMySqlImpl implements ITeamDao {
         try {
             con = MysqlConnection.connect();
 
-            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?,?)");
+            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?)");
             stm.setDate(1, newTeamMetric.getMetricDate());
             stm.setInt(2, newTeamMetric.getOpen());
             stm.setInt(3, newTeamMetric.getWeek1());
@@ -90,8 +89,7 @@ public class TeamDaoMySqlImpl implements ITeamDao {
             stm.setInt(8, newTeamMetric.getDesplieguePendiente());
             stm.setInt(9, newTeamMetric.getDesplegado());
             stm.setInt(10, newTeamMetric.getClosed());
-            stm.setInt(11, newTeamMetric.getNewBugs());
-            stm.setString(12, newTeamMetric.getProject());
+            stm.setString(11, newTeamMetric.getProject());
 
             int i = stm.executeUpdate();
             LOGGER.info(i+" records inserted");

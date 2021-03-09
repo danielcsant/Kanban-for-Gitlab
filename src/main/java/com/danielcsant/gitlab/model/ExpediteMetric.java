@@ -7,13 +7,15 @@ public class ExpediteMetric {
 
     private Date metricDate;
     private String project;
+    private int iid;
     private String team;
     private String title;
     private String url;
 
-    public ExpediteMetric(Date metricDate, String project, String team, String title, String url) {
+    public ExpediteMetric(Date metricDate, String project, Integer iid, String team, String title, String url) {
         this.metricDate = metricDate;
         this.project = project;
+        this.iid = iid;
         this.team = team;
         this.title = title;
         this.url = url;
@@ -33,6 +35,14 @@ public class ExpediteMetric {
 
     public void setProject(String project) {
         this.project = project;
+    }
+
+    public int getIid() {
+        return iid;
+    }
+
+    public void setIid(int iid) {
+        this.iid = iid;
     }
 
     public String getTeam() {
