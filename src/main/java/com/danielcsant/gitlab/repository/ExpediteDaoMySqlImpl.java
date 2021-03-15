@@ -23,6 +23,9 @@ public class ExpediteDaoMySqlImpl implements IExpediteDao {
 
         try {
             con = MysqlConnection.connect();
+            stm = con.prepareStatement("truncate " + formatTableName(tableName));
+            stm.execute();
+
             stm = con.prepareStatement("insert ignore into " + formatTableName(tableName) + " values(?,?,?,?,?,?)");
             int i = 0;
             for (ExpediteMetric newExpediteMetric : teamMetrics) {
@@ -72,6 +75,9 @@ public class ExpediteDaoMySqlImpl implements IExpediteDao {
 
         try {
             con = MysqlConnection.connect();
+
+            stm = con.prepareStatement("truncate " + formatTableName(tableName));
+            stm.execute();
 
             stm = con.prepareStatement("insert ignore into " + formatTableName(tableName) + " values(?,?,?,?,?,?)");
             stm.setDate(1, newExpediteMetric.getMetricDate());
