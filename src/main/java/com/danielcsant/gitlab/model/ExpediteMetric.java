@@ -11,14 +11,16 @@ public class ExpediteMetric {
     private String team;
     private String title;
     private String url;
+    Double resolutionHours;
 
-    public ExpediteMetric(Date metricDate, String project, Integer iid, String team, String title, String url) {
+    public ExpediteMetric(Date metricDate, String project, int iid, String team, String title, String url, Double resolutionHours) {
         this.metricDate = metricDate;
         this.project = project;
         this.iid = iid;
         this.team = team;
         this.title = title;
         this.url = url;
+        this.resolutionHours = resolutionHours;
     }
 
     public Date getMetricDate() {
@@ -67,5 +69,13 @@ public class ExpediteMetric {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public Double getResolutionHours() {
+        return resolutionHours;
+    }
+
+    public void setResolutionHours(Double resolutionHours) {
+        this.resolutionHours = resolutionHours;
     }
 }

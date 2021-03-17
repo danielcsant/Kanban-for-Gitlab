@@ -25,15 +25,6 @@ public abstract class GitlabService {
     public GitlabService(String hostUrl, String personalAccessToken) throws GitLabApiException {
         // Create a GitLabApi instance to communicate with your GitLab server
         gitLabApi = new GitLabApi(hostUrl, personalAccessToken);
-
-        // Get the list of projects your account has access to
-        getProjectList();
-    }
-
-    private void getProjectList() throws GitLabApiException {
-        if (projects == null) {
-            projects = gitLabApi.getProjectApi().getProjects();
-        }
     }
 
     protected Date getDate(String date) throws ParseException {

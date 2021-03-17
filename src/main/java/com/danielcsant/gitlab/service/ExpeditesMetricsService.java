@@ -120,6 +120,8 @@ public class ExpeditesMetricsService extends GitlabService{
                             .filter(issue.getLabels()::contains)
                             .collect(Collectors.toSet());
 
+                    Double resolutionHours = getResolutionHours(issue);
+
                     if (intersection.size() > 0) {
                         String teamName = teamCompatibleLabels.get(intersection.iterator().next());
                         java.sql.Date expediteDate = new java.sql.Date(issue.getCreatedAt().getTime());
@@ -130,7 +132,8 @@ public class ExpeditesMetricsService extends GitlabService{
                                 issue.getIid(),
                                 teamName,
                                 issue.getTitle(),
-                                issue.getWebUrl()
+                                issue.getWebUrl(),
+                                resolutionHours
                         );
 
                         expedites.add(expediteMetric);
@@ -147,5 +150,76 @@ public class ExpeditesMetricsService extends GitlabService{
         } else {
             LOGGER.warn("No metrics inserted");
         }
+    }
+
+    private Double getResolutionHours(Issue issue) {
+
+        String desplieguePendienteDateString = null;
+        String desplegadoDateString = null;
+        Date resolutionDate = null;
+        try {
+            List<LabelEvent> labelEvents = gitLabApi.getResourceLabelEventsApi().getIssueLabelEvents(issue.getProjectId(),issue.getIid());
+            for (LabelEvent labelEvent : labelEvents) {
+                if (labelEvent.getAction().equals("add")) {
+                    switch (labelEvent.getLabel().getName()) {
+                        case "Despliegue pendiente":
+                            if (desplieguePendienteDateString == null ){
+                                desplieguePendienteDateString = labelEvent.getCreatedAt();
+                            } else {
+                                desplieguePendienteDateString = getLastDate(desplieguePendienteDateString, labelEvent.getCreatedAt());
+                            }
+                        case "Desplegado":
+                            if (desplegadoDateString == null ){
+                                desplegadoDateString = labelEvent.getCreatedAt();
+                            } else {
+                                desplegadoDateString = getLastDate(desplegadoDateString, labelEvent.getCreatedAt());
+                            }
+                    }
+                }
+            }
+
+            if (desplieguePendienteDateString == null) {
+                if (desplegadoDateString == null) {
+                    if (issue.getClosedAt() != null) {
+                        resolutionDate = issue.getClosedAt();
+                    }
+                } else {
+                    resolutionDate = getDate(desplegadoDateString);
+                }
+            } else {
+                resolutionDate = getDate(desplieguePendienteDateString);
+            }
+
+        } catch (GitLabApiException e) {
+            LOGGER.error("Error retrieving labels for proyect id " + issue.getProjectId(), e);
+        } catch (ParseException e) {
+            LOGGER.error("Error formatting date", e);
+        }
+
+        Double resolutionHours = null;
+        if (resolutionDate != null) {
+            resolutionHours = getHoursBetween(issue.getCreatedAt(), resolutionDate);
+        }
+
+        return resolutionHours;
+    }
+
+    protected Double getHoursBetween(Date createdAt, Date resolutionDate) {
+        long secs = (resolutionDate.getTime() - createdAt.getTime()) / 1000;
+        return (double) secs / 3600;
+    }
+
+    protected String getLastDate(String dateString1, String dateString2) throws ParseException {
+        String lastDate;
+        Date date1 = getDate(dateString1);
+        Date date2 = getDate(dateString2);
+
+        if (date1.after(date2)) {
+            lastDate = dateString1;
+        } else {
+            lastDate = dateString2;
+        }
+
+        return lastDate;
     }
 }

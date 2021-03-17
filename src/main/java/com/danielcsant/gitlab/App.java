@@ -49,8 +49,8 @@ public class App {
         newTasksMetricsService = new NewTasksMetricsService(hostUrl, personalAccessToken);
         testCoverageMetricsService = new TestCoverageMetricsService(hostUrl, personalAccessToken);
 
-        generateProjectMetrics(prop, columnNames);
-        generateTeamMetrics(prop, columnNames);
+//        generateProjectMetrics(prop, columnNames);
+//        generateTeamMetrics(prop, columnNames);
         generateExpediteMetrics(prop);
     }
 

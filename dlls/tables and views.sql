@@ -41,5 +41,6 @@ CREATE TABLE `expedite` (
   `team` varchar(100) COLLATE latin1_spanish_ci DEFAULT NULL,
   `title` varchar(200) COLLATE latin1_spanish_ci DEFAULT NULL,
   `url` varchar(200) COLLATE latin1_spanish_ci DEFAULT NULL,
+  `resolutionHours` double DEFAULT NULL,
   PRIMARY KEY (`project`,`iid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_spanish_ci

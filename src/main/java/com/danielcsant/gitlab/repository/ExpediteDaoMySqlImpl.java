@@ -5,9 +5,7 @@ import com.danielcsant.gitlab.model.TeamMetric;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.List;
 
 public class ExpediteDaoMySqlImpl implements IExpediteDao {
@@ -26,15 +24,22 @@ public class ExpediteDaoMySqlImpl implements IExpediteDao {
             stm = con.prepareStatement("truncate " + formatTableName(tableName));
             stm.execute();
 
-            stm = con.prepareStatement("insert ignore into " + formatTableName(tableName) + " values(?,?,?,?,?,?)");
+            stm = con.prepareStatement("insert ignore into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?)");
             int i = 0;
             for (ExpediteMetric newExpediteMetric : teamMetrics) {
+
                 stm.setDate(1, newExpediteMetric.getMetricDate());
                 stm.setString(2, newExpediteMetric.getProject());
                 stm.setInt(3, newExpediteMetric.getIid());
                 stm.setString(4, newExpediteMetric.getTeam());
                 stm.setString(5, newExpediteMetric.getTitle());
                 stm.setString(6, newExpediteMetric.getUrl());
+
+                if (newExpediteMetric.getResolutionHours() != null) {
+                    stm.setDouble(7, newExpediteMetric.getResolutionHours());
+                } else {
+                    stm.setNull(7, Types.DOUBLE);
+                }
 
                 stm.addBatch();
                 i++;
@@ -64,38 +69,5 @@ public class ExpediteDaoMySqlImpl implements IExpediteDao {
         return tableNameAux
                 .toLowerCase()
                 .replaceAll("-","_");
-    }
-
-    @Override
-    public boolean upsert(String tableName, ExpediteMetric newExpediteMetric) {
-        boolean insert = false;
-
-        PreparedStatement stm= null;
-        Connection con=null;
-
-        try {
-            con = MysqlConnection.connect();
-
-            stm = con.prepareStatement("truncate " + formatTableName(tableName));
-            stm.execute();
-
-            stm = con.prepareStatement("insert ignore into " + formatTableName(tableName) + " values(?,?,?,?,?,?)");
-            stm.setDate(1, newExpediteMetric.getMetricDate());
-            stm.setString(2, newExpediteMetric.getProject());
-            stm.setInt(3, newExpediteMetric.getIid());
-            stm.setString(4, newExpediteMetric.getTeam());
-            stm.setString(5, newExpediteMetric.getTitle());
-            stm.setString(6, newExpediteMetric.getUrl());
-
-            int i = stm.executeUpdate();
-            LOGGER.info(i+" records inserted");
-            insert=true;
-            stm.close();
-            con.close();
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
-            e.printStackTrace();
-        }
-        return insert;
     }
 }

@@ -8,6 +8,5 @@ import java.util.List;
 public interface IExpediteDao {
 
     public boolean upsert(String tableName, List<ExpediteMetric> expediteMetrics);
-    public boolean upsert(String tableName, ExpediteMetric expediteMetric);
 
 }
