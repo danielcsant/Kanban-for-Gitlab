@@ -94,32 +94,41 @@ public class ExpeditesMetricsService extends GitlabService{
         return result;
     }
 
-    public void persistExpedites(String[] teams) throws GitLabApiException {
+    public void persistExpedites(String[] teams, String[] teamLabels) throws GitLabApiException {
 
+        HashMap<String, String> teamCompatibleLabels = new HashMap();
+        for (int i = 0; i < teamLabels.length; i++) {
+            String [] teamLabelsData = teamLabels[i].split(":");
+            for (int j = 1; j < teamLabelsData.length; j++) {
+                teamCompatibleLabels.put(teamLabelsData[j], teamLabelsData[0]);
+            }
+        }
 
         ArrayList<String> teamNames = new ArrayList();
         for (int i = 0; i < teams.length; i++) {
             String [] teamData = teams[i].split(":");
             teamNames.add(teamData[0]);
+            teamCompatibleLabels.put(teamData[0], teamData[0]);
         }
 
         ArrayList expedites = new ArrayList();
         for (Issue issue : getAllIssues()) {
             if (issue.getLabels() != null && issue.getLabels().size() > 0){
                 if (issue.getLabels().contains(EXPEDITE_LABEL)) {
-                    Set<String> intersection = teamNames.stream()
+                    Set<String> intersection = teamCompatibleLabels.keySet().stream()
                             .distinct()
                             .filter(issue.getLabels()::contains)
                             .collect(Collectors.toSet());
 
                     if (intersection.size() > 0) {
+                        String teamName = teamCompatibleLabels.get(intersection.iterator().next());
                         java.sql.Date expediteDate = new java.sql.Date(issue.getCreatedAt().getTime());
                         String projectName = getProjectName(issue.getProjectId());
                         ExpediteMetric expediteMetric = new ExpediteMetric(
                                 expediteDate,
                                 projectName,
                                 issue.getIid(),
-                                intersection.iterator().next(),
+                                teamName,
                                 issue.getTitle(),
                                 issue.getWebUrl()
                         );

@@ -49,14 +49,15 @@ public class App {
         newTasksMetricsService = new NewTasksMetricsService(hostUrl, personalAccessToken);
         testCoverageMetricsService = new TestCoverageMetricsService(hostUrl, personalAccessToken);
 
-        generateProjectMetrics(prop, columnNames);
-        generateTeamMetrics(prop, columnNames);
+//        generateProjectMetrics(prop, columnNames);
+//        generateTeamMetrics(prop, columnNames);
         generateExpediteMetrics(prop);
     }
 
     private static void generateExpediteMetrics(Properties prop) throws GitLabApiException {
         String [] teams = prop.getProperty("teams").split(",");
-        expeditesMetricsService.persistExpedites(teams);
+        String [] teamLabels = prop.getProperty("teamLabels").split(",");
+        expeditesMetricsService.persistExpedites(teams, teamLabels);
     }
 
     private static void generateTeamMetrics(Properties prop, String[] columnNames) throws Exception {

@@ -7,6 +7,7 @@ projects=projectx:1399,projecty:1265
 
 ## teams=teamName1:closedIssuesAtStart,teamName2:closedIssuesAtStart,...
 teams=teamx:1399,teamy:1265
+teamLabels=team1Name:team1Label,team2Name:team2Label
 
 ## MySql
 mysqlHost=
