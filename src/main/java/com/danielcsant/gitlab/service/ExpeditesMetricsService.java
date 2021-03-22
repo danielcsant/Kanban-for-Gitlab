@@ -162,7 +162,7 @@ public class ExpeditesMetricsService extends GitlabService{
             for (LabelEvent labelEvent : labelEvents) {
                 if (labelEvent.getAction().equals("add")) {
                     switch (labelEvent.getLabel().getName()) {
-                        case "Despliegue pendiente":
+                        case "Despliegue Pendiente":
                             if (desplieguePendienteDateString == null ){
                                 desplieguePendienteDateString = labelEvent.getCreatedAt();
                             } else {
