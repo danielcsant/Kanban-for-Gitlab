@@ -17,8 +17,8 @@ CREATE TABLE `project` (
 
 CREATE VIEW metrics.global_coverage AS
 SELECT p.metric_date , p.project , p.master_coverage
-FROM metrics.project p
-WHERE p.metric_date = (SELECT MAX( p.metric_date ) FROM metrics.project p);
+FROM metrics.coverage p
+WHERE p.metric_date = (SELECT MAX( p.metric_date ) FROM metrics.coverage p);
 
 CREATE TABLE `team` (
   `metric_date` date NOT NULL,
