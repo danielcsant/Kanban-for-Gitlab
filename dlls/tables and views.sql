@@ -44,3 +44,10 @@ CREATE TABLE `expedite` (
   `resolutionHours` double DEFAULT NULL,
   PRIMARY KEY (`project`,`iid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_spanish_ci
+
+CREATE TABLE `coverage` (
+  `metric_date` date NOT NULL,
+  `project` varchar(100) NOT NULL,
+  `master_coverage` varchar(100) NOT NULL,
+  PRIMARY KEY (`metric_date`,`project`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1

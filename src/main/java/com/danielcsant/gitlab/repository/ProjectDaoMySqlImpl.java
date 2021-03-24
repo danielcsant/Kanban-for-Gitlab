@@ -23,8 +23,7 @@ public class ProjectDaoMySqlImpl implements IProjectDao {
 
         try {
             con = MysqlConnection.connect();
-            createTable(formatTableName(tableName), con);
-            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?,?)");
+            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?)");
             int i = 0;
             for (ProjectMetric newProjectMetric : projectMetrics) {
                 stm.setDate(1, newProjectMetric.getMetricDate());
@@ -36,9 +35,8 @@ public class ProjectDaoMySqlImpl implements IProjectDao {
                 stm.setInt(7, newProjectMetric.getDesplegado());
                 stm.setInt(8, newProjectMetric.getClosed());
                 stm.setInt(9, newProjectMetric.getNewBugs());
-                stm.setInt(10, newProjectMetric.getMasterCoverage());
-                stm.setInt(11, newProjectMetric.getNewTasks());
-                stm.setString(12, newProjectMetric.getProject());
+                stm.setInt(10, newProjectMetric.getNewTasks());
+                stm.setString(11, newProjectMetric.getProject());
 
                 stm.addBatch();
                 i++;
@@ -79,9 +77,8 @@ public class ProjectDaoMySqlImpl implements IProjectDao {
 
         try {
             con = MysqlConnection.connect();
-            createTable(formatTableName(tableName), con);
 
-            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?,?)");
+            stm = con.prepareStatement("insert into " + formatTableName(tableName) + " values(?,?,?,?,?,?,?,?,?,?,?)");
             stm.setDate(1, projectMetric.getMetricDate());
             stm.setInt(2, projectMetric.getOpen());
             stm.setInt(3, projectMetric.getToDo());
@@ -91,9 +88,8 @@ public class ProjectDaoMySqlImpl implements IProjectDao {
             stm.setInt(7, projectMetric.getDesplegado());
             stm.setInt(8, projectMetric.getClosed());
             stm.setInt(9, projectMetric.getNewBugs());
-            stm.setInt(10, projectMetric.getMasterCoverage());
-            stm.setInt(11, projectMetric.getNewTasks());
-            stm.setString(12, projectMetric.getProject());
+            stm.setInt(10, projectMetric.getNewTasks());
+            stm.setString(11, projectMetric.getProject());
 
             int i = stm.executeUpdate();
             LOGGER.info(i+" records inserted");
@@ -105,25 +101,5 @@ public class ProjectDaoMySqlImpl implements IProjectDao {
             e.printStackTrace();
         }
         return insert;
-    }
-
-    private void createTable(String tableName, Connection con) throws SQLException {
-        String sqlCreate = "CREATE TABLE IF NOT EXISTS `" + tableName.toLowerCase() + "` (\n" +
-                "  `metric_date` date NOT NULL,\n" +
-                "  `open` int(11) NOT NULL,\n" +
-                "  `to_do` int(11) NOT NULL,\n" +
-                "  `doing` int(11) NOT NULL,\n" +
-                "  `desplegado_en_test` int(11) NOT NULL,\n" +
-                "  `despliegue_pendiente` int(11) NOT NULL,\n" +
-                "  `desplegado` int(11) NOT NULL,\n" +
-                "  `closed` int(11) NOT NULL,\n" +
-                "  `new_bugs` int(11) NOT NULL,\n" +
-                "  `master_coverage` int(11) NOT NULL,\n" +
-                "  `new_tasks` int(11) NOT NULL,\n" +
-                "  `project` varchar(100) NOT NULL\n" +
-                ") ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_spanish_ci";
-
-        Statement stmt = con.createStatement();
-        stmt.execute(sqlCreate);
     }
 }

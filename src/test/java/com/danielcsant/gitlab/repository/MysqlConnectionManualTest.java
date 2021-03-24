@@ -28,7 +28,6 @@ public class MysqlConnectionManualTest {
                 6,
                 7,
                 8,
-                9,
                 10,
                 "project foo"
         );
@@ -54,7 +53,6 @@ public class MysqlConnectionManualTest {
                 6,
                 7,
                 8,
-                9,
                 10,
                 "project foo"
         );
@@ -82,7 +80,6 @@ public class MysqlConnectionManualTest {
                     6,
                     7,
                     8,
-                    9,
                     10,
                     "project foo"
             );

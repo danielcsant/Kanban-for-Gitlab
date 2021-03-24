@@ -4,6 +4,7 @@ sheetId=
 
 ## poyects=projectName1:closedIssuesAtStart,projectName2:closedIssuesAtStart,...
 projects=projectx:1399,projecty:1265
+coverage.groupName=groupNamex
 
 ## teams=teamName1:closedIssuesAtStart,teamName2:closedIssuesAtStart,...
 teams=teamx:1399,teamy:1265

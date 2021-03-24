@@ -19,16 +19,13 @@ public class ProjectMetric {
     // Bugs
     private int newBugs;
 
-    // Coverage
-    private int masterCoverage;
-
     // New Tasks
     private int newTasks;
 
     private String project;
 
 
-    public ProjectMetric(Date metricDate, int open, int toDo, int doing, int desplegadoEnTest, int desplieguePendiente, int desplegado, int closed, int newBugs, int masterCoverage, int newTasks, String project) {
+    public ProjectMetric(Date metricDate, int open, int toDo, int doing, int desplegadoEnTest, int desplieguePendiente, int desplegado, int closed, int newBugs, int newTasks, String project) {
         this.metricDate = metricDate;
         this.open = open;
         this.toDo = toDo;
@@ -38,7 +35,6 @@ public class ProjectMetric {
         this.desplegado = desplegado;
         this.closed = closed;
         this.newBugs = newBugs;
-        this.masterCoverage = masterCoverage;
         this.newTasks = newTasks;
         this.project = project;
     }
@@ -113,14 +109,6 @@ public class ProjectMetric {
 
     public void setNewBugs(int newBugs) {
         this.newBugs = newBugs;
-    }
-
-    public int getMasterCoverage() {
-        return masterCoverage;
-    }
-
-    public void setMasterCoverage(int masterCoverage) {
-        this.masterCoverage = masterCoverage;
     }
 
     public int getNewTasks() {

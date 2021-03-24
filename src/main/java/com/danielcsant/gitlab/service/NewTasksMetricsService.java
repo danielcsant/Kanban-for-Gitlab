@@ -1,6 +1,5 @@
 package com.danielcsant.gitlab.service;
 
-import com.danielcsant.gitlab.model.IssuesInDate;
 import org.gitlab4j.api.GitLabApiException;
 import org.gitlab4j.api.models.Issue;
 
@@ -35,43 +34,6 @@ public class NewTasksMetricsService extends GitlabService{
         String yesterdayDayDay = yesterdayDayString.substring(0, 10);
 
         return createdDateDay.equals(yesterdayDayDay);
-    }
-
-    public List<IssuesInDate> getCreatedIssues(HashMap<String, List<Issue>> columns) {
-        HashMap<Date, List<Issue>> hashMap = new HashMap<>();
-        List<IssuesInDate> result = new ArrayList<>();
-        for (List<Issue> valuesColumn : columns.values()) {
-            for (Issue issue : valuesColumn) {
-                Date createdDate = trim(issue.getCreatedAt());
-                if (!hashMap.containsKey(createdDate)) {
-                    List<Issue> list = new ArrayList<Issue>();
-                    list.add(issue);
-                    hashMap.put(createdDate, list);
-                } else {
-                    hashMap.get(createdDate).add(issue);
-                }
-            }
-        }
-
-        for (Date date : hashMap.keySet()) {
-            result.add(new IssuesInDate(date, hashMap.get(date)));
-        }
-
-        Collections.sort(result);
-
-        return result;
-    }
-
-
-    public Date trim(Date date) {
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(date);
-        calendar.set(Calendar.MILLISECOND, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-
-        return calendar.getTime();
     }
 
 }

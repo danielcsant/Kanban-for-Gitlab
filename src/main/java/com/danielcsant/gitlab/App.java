@@ -42,7 +42,6 @@ public class App {
         String personalAccessToken = prop.getProperty("personalAccessToken");
         String hostUrl = prop.getProperty("hostUrl");
         String columnNames[] = {"Open","Week +1","Week +2","To Do","Doing","Desplegado en Test","Despliegue Pendiente","Desplegado","Closed"};
-        String sheetId = prop.getProperty("sheetId");
 
         gitlabService = new CFDMetricsService(hostUrl, personalAccessToken);
         expeditesMetricsService = new ExpeditesMetricsService(hostUrl, personalAccessToken);
@@ -52,6 +51,13 @@ public class App {
         generateProjectMetrics(prop, columnNames);
         generateTeamMetrics(prop, columnNames);
         generateExpediteMetrics(prop);
+        generateCoverageMetrics(prop);
+    }
+
+    private static void generateCoverageMetrics(Properties prop) throws Exception {
+//        List<String> projects = Arrays.asList(prop.getProperty("coverage.projects").split(","));
+        String groupName = prop.getProperty("coverage.groupName");
+        testCoverageMetricsService.measureCoverage(groupName);
     }
 
     private static void generateExpediteMetrics(Properties prop) throws GitLabApiException {
@@ -173,9 +179,6 @@ public class App {
         List<Issue> tasksCreatedYesterday = newTasksMetricsService.getTasksCreatedYesterday(columns);
         columnMap.put("New tasks", tasksCreatedYesterday.size());
 
-        TestCoverage testCoverage = testCoverageMetricsService.getTestCoverage(projectName);
-        columnMap.put("Coverage", (int) Double.parseDouble(testCoverage.getCoverage()));
-
         ProjectMetric newProjectMetric = new ProjectMetric(
                 sqlDate,
                 columnMap.get("Open"),
@@ -186,7 +189,6 @@ public class App {
                 columnMap.get("Desplegado"),
                 columnMap.get("Closed"),
                 columnMap.get("Expedites"),
-                columnMap.get("Coverage"),
                 columnMap.get("New tasks"),
                 projectName
                 );
