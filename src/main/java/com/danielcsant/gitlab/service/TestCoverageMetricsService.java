@@ -50,10 +50,10 @@ public class TestCoverageMetricsService extends GitlabService{
 
             if (pipelineList.isEmpty()){
                 LOGGER.warn("No pipelines configured in project " + pathWithNamespace);
-                testCoverage = null;
+                testCoverage = new TestCoverage(today, pathWithNamespace, "0");
             } else if (testCoverage == null) {
                 LOGGER.warn("Master branch in project " + pathWithNamespace + " does not exist.");
-                testCoverage = null;
+                testCoverage = new TestCoverage(today, pathWithNamespace, "0");
             }
 
         } catch (GitLabApiException gitLabApiException) {
@@ -69,9 +69,13 @@ public class TestCoverageMetricsService extends GitlabService{
         List<Project> projectList = gitLabApi.getGroupApi().getProjects(groupName);
 
         for (Project project : projectList) {
-            TestCoverage testCoverage = getTestCoverage(project.getPathWithNamespace());
-            if (testCoverage != null) {
-                testCoverageList.add(testCoverage);
+            if (!project.getArchived()){
+                TestCoverage testCoverage = getTestCoverage(project.getPathWithNamespace());
+                if (testCoverage != null) {
+                    testCoverageList.add(testCoverage);
+                }
+            } else {
+                LOGGER.info("Project " + project.getPathWithNamespace() + " is archived. Skipping coverage.");
             }
         }
 
